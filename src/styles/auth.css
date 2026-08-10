@@ -1,0 +1,201 @@
+/* ==========================================================================
+   Auth — split-screen login / register
+   ========================================================================== */
+
+.auth {
+  display: grid;
+  grid-template-columns: 1fr;
+  min-height: 100vh;
+}
+@media (min-width: 992px) {
+  .auth {
+    grid-template-columns: 1fr 1.05fr;
+  }
+}
+
+/* ---------- Left brand panel (desktop only) ---------- */
+.auth__aside {
+  display: none;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(2.5rem, 4vw, 3.5rem);
+  background: linear-gradient(
+    160deg,
+    var(--c-primary-900) 0%,
+    var(--c-primary-800) 45%,
+    var(--c-secondary-700) 135%
+  );
+  color: #fff;
+  flex-direction: column;
+  justify-content: space-between;
+}
+@media (min-width: 992px) {
+  .auth__aside {
+    display: flex;
+  }
+}
+.auth__aside-glow {
+  bottom: -180px;
+  left: -120px;
+  width: 480px;
+  height: 480px;
+  opacity: 0.5;
+}
+.auth__aside-title {
+  color: #fff;
+  font-size: clamp(1.75rem, 2.6vw, 2.25rem);
+  margin-bottom: var(--sp-4);
+  max-width: 18ch;
+}
+.auth__aside-text {
+  color: rgba(255, 255, 255, 0.78);
+  max-width: 44ch;
+  font-size: var(--fs-md);
+  line-height: 1.7;
+}
+.auth__aside-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  margin-top: var(--sp-8);
+}
+.auth__aside-item {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+}
+.auth__aside-item i {
+  color: var(--c-secondary-300);
+  font-size: 1.1rem;
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+.auth__aside-item strong {
+  display: block;
+  color: #fff;
+  font-weight: var(--fw-semibold);
+  font-size: var(--fs-base);
+}
+.auth__aside-item span {
+  font-size: var(--fs-sm);
+  color: rgba(255, 255, 255, 0.66);
+  line-height: 1.5;
+}
+
+/* ---------- Right form panel ---------- */
+.auth__main {
+  display: flex;
+  flex-direction: column;
+  padding: var(--sp-5) var(--sp-4) var(--sp-8);
+  background: var(--c-bg);
+  position: relative;
+  overflow: hidden;
+}
+.auth__topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  margin-bottom: clamp(1.5rem, 4vw, 2.5rem);
+}
+.auth__form-wrap {
+  width: 100%;
+  max-width: 460px;
+  margin: 0 auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.auth__title {
+  margin-bottom: var(--sp-2);
+  font-size: clamp(1.5rem, 3vw, var(--fs-2xl));
+}
+.auth__sub {
+  color: var(--c-muted);
+  margin-bottom: var(--sp-6);
+}
+.auth__card {
+  padding: clamp(1.5rem, 3vw, 2rem);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-md);
+}
+.auth__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-5);
+}
+.auth__divider {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin: var(--sp-5) 0;
+  color: var(--c-ink-400);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--ls-wide);
+  text-transform: uppercase;
+}
+.auth__divider::before,
+.auth__divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--c-border);
+}
+.auth__foot {
+  text-align: center;
+  margin-top: var(--sp-5);
+  font-size: var(--fs-base);
+  color: var(--c-muted);
+}
+.auth__foot a {
+  font-weight: var(--fw-semibold);
+}
+
+/* Demo credentials callout */
+.demo-note {
+  display: flex;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  margin-top: var(--sp-5);
+  border-radius: var(--r-md);
+  background: var(--c-accent-50);
+  border: 1px dashed #f2d19a;
+  font-size: var(--fs-sm);
+  color: #7a4b06;
+  line-height: 1.55;
+}
+.demo-note i {
+  font-size: 1.05rem;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.demo-note strong {
+  display: block;
+  font-weight: var(--fw-bold);
+  margin-bottom: 2px;
+}
+.demo-note code {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 1px 5px;
+  border-radius: 4px;
+  color: #6b4104;
+}
+
+/* Small print / terms */
+.auth__terms {
+  font-size: var(--fs-sm);
+  line-height: 1.55;
+}
+.auth__terms a {
+  font-weight: var(--fw-semibold);
+}

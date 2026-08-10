@@ -1,0 +1,493 @@
+<title>NagarSetu — Final Technical Report</title>
+<style>
+:root {
+  --ground: #f7f6f2;
+  --surface: #ffffff;
+  --surface-alt: #eceae4;
+  --ink: #1a2744;
+  --ink-body: #3d4f5f;
+  --ink-muted: #7a8a96;
+  --accent: #2a7d6e;
+  --accent-light: #e6f2ef;
+  --warn: #c9942a;
+  --warn-light: #faf3e0;
+  --border: #d5d2ca;
+  --mono-bg: #f0ede6;
+  --code: #b44d2d;
+  --section-num: #2a7d6e;
+  --stripe-even: #faf9f6;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground: #131a24;
+  --surface: #1a2233;
+  --surface-alt: #212d3f;
+  --ink: #dfe4eb;
+  --ink-body: #b0bcc8;
+  --ink-muted: #6e7f90;
+  --accent: #4cc9ad;
+  --accent-light: #1a2f2a;
+  --warn: #e8c547;
+  --warn-light: #2a2618;
+  --border: #2c3a4e;
+  --mono-bg: #1e2a3a;
+  --code: #e07a56;
+  --section-num: #4cc9ad;
+  --stripe-even: #1e2836;
+}}
+:root[data-theme="dark"]{
+  --ground: #131a24;
+  --surface: #1a2233;
+  --surface-alt: #212d3f;
+  --ink: #dfe4eb;
+  --ink-body: #b0bcc8;
+  --ink-muted: #6e7f90;
+  --accent: #4cc9ad;
+  --accent-light: #1a2f2a;
+  --warn: #e8c547;
+  --warn-light: #2a2618;
+  --border: #2c3a4e;
+  --mono-bg: #1e2a3a;
+  --code: #e07a56;
+  --section-num: #4cc9ad;
+  --stripe-even: #1e2836;
+}
+
+*,*::before,*::after{box-sizing:border-box}
+body{
+  background:var(--ground);color:var(--ink-body);
+  font-family:'Segoe UI',-apple-system,system-ui,sans-serif;
+  font-size:15px;line-height:1.65;
+  max-width:860px;margin:0 auto;padding:2rem 1.25rem 4rem;
+}
+h1,h2,h3{color:var(--ink);margin:0;font-weight:700}
+h1{font-size:1.6rem;letter-spacing:-.02em;margin-bottom:.15rem}
+.subtitle{color:var(--ink-muted);font-size:.92rem;margin-bottom:2rem}
+h2{
+  font-size:1.15rem;letter-spacing:-.01em;
+  border-bottom:2px solid var(--accent);padding-bottom:.35rem;
+  margin-top:2.5rem;margin-bottom:1rem;display:flex;align-items:baseline;gap:.5rem;
+}
+h2 .num{color:var(--section-num);font-variant-numeric:tabular-nums;font-size:.95rem;min-width:1.5rem}
+h3{font-size:.95rem;margin-top:1.25rem;margin-bottom:.4rem}
+p{margin:.4rem 0}
+code{
+  font-family:'Cascadia Code','Fira Code','Source Code Pro',monospace;
+  font-size:.84em;background:var(--mono-bg);color:var(--code);
+  padding:.1em .35em;border-radius:3px;
+}
+.path{word-break:break-all}
+ul,ol{padding-left:1.4rem;margin:.35rem 0}
+li{margin:.2rem 0}
+li::marker{color:var(--accent)}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:6px;padding:1rem 1.15rem;margin:.75rem 0;
+}
+.card h3{margin-top:0}
+
+table{
+  width:100%;border-collapse:collapse;font-size:.88rem;margin:.5rem 0;
+}
+.table-wrap{overflow-x:auto;margin:.5rem 0}
+th{
+  text-align:left;font-weight:600;color:var(--ink);
+  border-bottom:2px solid var(--border);padding:.45rem .6rem;
+  font-size:.82rem;text-transform:uppercase;letter-spacing:.04em;
+}
+td{padding:.4rem .6rem;border-bottom:1px solid var(--border)}
+tr:nth-child(even) td{background:var(--stripe-even)}
+
+.chip{
+  display:inline-block;font-size:.75rem;font-weight:600;
+  padding:.15em .55em;border-radius:3px;letter-spacing:.02em;
+  vertical-align:middle;
+}
+.chip--accent{background:var(--accent-light);color:var(--accent)}
+.chip--warn{background:var(--warn-light);color:var(--warn)}
+.chip--muted{background:var(--mono-bg);color:var(--ink-muted)}
+
+.tree{font-family:monospace;font-size:.82rem;line-height:1.55;color:var(--ink-body);white-space:pre;overflow-x:auto}
+.tree b{color:var(--ink);font-weight:600}
+
+.note{
+  background:var(--warn-light);border-left:3px solid var(--warn);
+  padding:.6rem .9rem;border-radius:0 4px 4px 0;margin:.75rem 0;
+  font-size:.88rem;color:var(--ink-body);
+}
+
+.result{
+  background:var(--accent-light);border:1px solid var(--accent);
+  border-radius:6px;padding:.75rem 1rem;margin:.75rem 0;
+  font-family:monospace;font-size:.84rem;color:var(--accent);
+  white-space:pre-wrap;
+}
+
+@media(max-width:600px){
+  body{font-size:14px;padding:1.25rem 1rem 3rem}
+  h1{font-size:1.3rem}
+  h2{font-size:1.05rem}
+  table{font-size:.82rem}
+  th,td{padding:.35rem .4rem}
+}
+</style>
+
+<h1>NagarSetu — Final Technical Report</h1>
+<p class="subtitle">AI-Based Grievance Lodging & Tracking System · Smart India Hackathon · August 2026</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">1.</span> Complete Route List</h2>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Path</th><th>Page</th><th>Guard</th></tr></thead>
+<tbody>
+<tr><td><code>/</code></td><td>Landing page</td><td>Public</td></tr>
+<tr><td><code>/login</code></td><td>Login</td><td>Public</td></tr>
+<tr><td><code>/register</code></td><td>Registration</td><td>Public</td></tr>
+<tr><td><code>/track</code></td><td>Track complaint by ID</td><td>Public</td></tr>
+<tr><td><code>/citizen/dashboard</code></td><td>Citizen dashboard</td><td>Citizen</td></tr>
+<tr><td><code>/citizen/lodge-complaint</code></td><td>Lodge complaint (text / voice / image)</td><td>Citizen</td></tr>
+<tr><td><code>/citizen/complaint-submitted</code></td><td>Success confirmation</td><td>Citizen</td></tr>
+<tr><td><code>/citizen/complaints</code></td><td>My complaints list</td><td>Citizen</td></tr>
+<tr><td><code>/citizen/complaints/:id</code></td><td>Complaint detail + tracker</td><td>Citizen</td></tr>
+<tr><td><code>/citizen/notifications</code></td><td>Citizen notification feed</td><td>Citizen</td></tr>
+<tr><td><code>/citizen/profile</code></td><td>Citizen profile</td><td>Citizen</td></tr>
+<tr><td><code>/officer/dashboard</code></td><td>Grievance Command Center</td><td>Officer</td></tr>
+<tr><td><code>/officer/complaints</code></td><td>Officer complaint queue</td><td>Officer</td></tr>
+<tr><td><code>/officer/complaints/:id</code></td><td>Officer complaint detail</td><td>Officer</td></tr>
+<tr><td><code>/officer/map</code></td><td>Geographic complaint map</td><td>Officer</td></tr>
+<tr><td><code>/officer/analytics</code></td><td>Analytics dashboard</td><td>Officer</td></tr>
+<tr><td><code>/officer/departments</code></td><td>Department workload</td><td>Officer</td></tr>
+<tr><td><code>/officer/notifications</code></td><td>Officer notification feed</td><td>Officer</td></tr>
+<tr><td><code>/officer/profile</code></td><td>Officer profile</td><td>Officer</td></tr>
+<tr><td><code>*</code></td><td>404 Not Found</td><td>Public</td></tr>
+</tbody>
+</table></div>
+
+<p><strong>20 routes total</strong> (4 public, 7 citizen-guarded, 8 officer-guarded, 1 catch-all). Guards are UI-level only via <code>ProtectedRoute</code>; the structure is ready for real JWT auth without route changes.</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">2.</span> Complete Component Structure</h2>
+
+<div class="card">
+<div class="tree"><b>src/</b>
+├── <b>main.jsx</b>                          Entry point
+├── <b>App.jsx</b>                           Provider stack + router
+│
+├── <b>context/</b>
+│   ├── contexts.js                     createContext definitions
+│   ├── AuthContext.jsx                 Auth provider (mock)
+│   ├── GrievanceContext.jsx            Single source of truth provider
+│   ├── grievanceReducer.js             Pure state transitions
+│   └── ToastContext.jsx                Toast notifications
+│
+├── <b>routes/</b>
+│   ├── AppRoutes.jsx                   All route definitions
+│   ├── ProtectedRoute.jsx              Role-based guard shell
+│   └── ScrollToTop.jsx                 Scroll restoration
+│
+├── <b>layouts/</b>
+│   ├── PublicLayout.jsx                Navbar + footer
+│   ├── AuthLayout.jsx                  Login/register wrapper
+│   └── DashboardLayout.jsx             Sidebar + topbar shell
+│
+├── <b>pages/</b>
+│   ├── Landing.jsx                     Public home
+│   ├── NotFound.jsx                    404
+│   ├── TrackComplaint.jsx              Public tracker
+│   ├── auth/  Login.jsx, Register.jsx
+│   ├── <b>citizen/</b>
+│   │   ├── Dashboard.jsx               Stats + quick actions
+│   │   ├── LodgeComplaint.jsx          Text / voice / image tabs
+│   │   ├── ComplaintSubmitted.jsx       Success page
+│   │   ├── MyComplaints.jsx            Filterable list
+│   │   ├── ComplaintDetail.jsx         Full detail + tracker
+│   │   ├── Notifications.jsx           Feed
+│   │   └── Profile.jsx                 Settings
+│   └── <b>officer/</b>
+│       ├── Dashboard.jsx               Command center
+│       ├── Complaints.jsx              Queue with filters + pagination
+│       ├── ComplaintDetail.jsx         Detail + status/assign modals
+│       ├── Map.jsx                     Geographic view
+│       ├── Analytics.jsx               Charts + breakdowns
+│       ├── Departments.jsx             Workload cards
+│       ├── Notifications.jsx           Officer feed
+│       └── Profile.jsx                 Settings
+│
+├── <b>components/</b>
+│   ├── <b>common/</b>  (20 reusable)
+│   │   Avatar, Breadcrumb, Button, Card, ConfidenceMeter,
+│   │   EmptyState, FormField, LoadingSpinner, MapPlaceholder,
+│   │   Modal, PageHeader, PriorityBadge, RoleSwitch,
+│   │   SectionHeading, Segmented, SelectField, StatCard,
+│   │   StatusBadge, StrengthMeter, TextareaField, ToastStack, Toggle
+│   ├── <b>complaints/</b>  (8 domain)
+│   │   ActivityTimeline, AIAnalysisPanel, ComplaintCard,
+│   │   ComplaintFilters, ComplaintStatusTracker, ComplaintTable,
+│   │   ImageDropzone, OfficerCard, RelatedComplaints, VoiceRecorder
+│   ├── <b>dashboard/</b>  QuickActionCard, WelcomeBanner
+│   ├── <b>landing/</b>  (8 sections)
+│   │   AIWorkflow, Benefits, CivicProblems, CTASection,
+│   │   Features, Hero, HowItWorks, StatsBand, WhyPlatform
+│   ├── <b>layout/</b>  Brand, Footer, Navbar, Sidebar, Topbar
+│   ├── <b>notifications/</b>  NotificationFeed, NotificationItem
+│   └── <b>officer/</b>  (9 officer-specific)
+│       AssignOfficerModal, BarList, ComplaintMap, OfficerComplaintTable,
+│       OfficerFilters, Pagination, SlaPanel, StatusUpdateModal, TrendChart
+│
+├── <b>hooks/</b>  (10 custom)
+│   useAuth, useComplaint, useCountUp, useDocumentTitle,
+│   useGrievances, useMediaQuery, useScrollPosition,
+│   useScrollReveal, useSpeechRecognition, useToast
+│
+├── <b>services/</b>
+│   ├── aiService.js                    Keyword AI + vision mock
+│   ├── apiClient.js                    Axios instance (ready, unused)
+│   ├── authService.js                  Mock auth
+│   ├── grievanceService.js             Store read/write/build
+│   └── profileService.js               Mock profile
+│
+├── <b>utils/</b>
+│   ├── constants.js                    All enums, paths, config
+│   ├── formatters.js                   Date/number formatting
+│   ├── grievanceUtils.js               Pure derivations + stats
+│   ├── imageTools.js                   Canvas downscale
+│   ├── mockData.js                     Seed records + AI rules
+│   └── validators.js                   Form validation
+│
+└── <b>styles/</b>
+    ├── tokens.css                      CSS custom property system
+    ├── index.css                       Import chain
+    ├── citizen.css                     Citizen-specific styles
+    └── officer.css                     Officer-specific styles</div>
+</div>
+
+<p><strong>113 source files</strong> (JSX + JS + CSS). Every component is a function component with hooks — no class components.</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">3.</span> State / Data Architecture</h2>
+
+<div class="card">
+<h3>Three-layer design</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Layer</th><th>Module</th><th>Responsibility</th></tr></thead>
+<tbody>
+<tr><td><span class="chip chip--accent">Pure</span></td><td><code>utils/grievanceUtils.js</code></td><td>Derivations: <code>computeStats</code>, <code>filterComplaints</code>, <code>paginate</code>, <code>slaFor</code>, breakdowns, trend. Zero side effects, zero React.</td></tr>
+<tr><td><span class="chip chip--accent">Storage</span></td><td><code>services/grievanceService.js</code></td><td>The only module that touches localStorage. <code>loadState</code>, <code>persistState</code>, <code>buildComplaint</code>, <code>applyStatusChange</code>, <code>applyAssignment</code>, <code>notificationForStatus</code>.</td></tr>
+<tr><td><span class="chip chip--accent">React</span></td><td><code>context/GrievanceContext.jsx</code><br/><code>context/grievanceReducer.js</code></td><td><code>useReducer</code> + <code>useEffect</code> persistence. Every screen reads the same <code>complaints</code> array. Dispatch actions: <code>CREATE</code>, <code>STATUS</code>, <code>ASSIGN</code>, <code>READ_NOTIFICATION</code>, <code>READ_ALL</code>, <code>RESET</code>, <code>CLEAR</code>.</td></tr>
+</tbody>
+</table></div>
+</div>
+
+<h3>Data flow (citizen files → officer sees)</h3>
+<ol>
+<li>Citizen submits → <code>buildComplaint()</code> generates unique ID, attaches AI analysis, creates timeline entry</li>
+<li><code>dispatch({ type: CREATE })</code> prepends to <code>state.complaints</code>, creates citizen + officer notifications</li>
+<li><code>useEffect</code> persists entire state to <code>localStorage</code></li>
+<li>Officer dashboard reads the same <code>complaints</code> array → <code>computeStats()</code> recalculates all tiles</li>
+<li>Officer opens detail → same record, same timeline, same AI analysis</li>
+<li>Officer changes status → <code>dispatch({ type: STATUS })</code> → citizen's tracker updates instantly</li>
+</ol>
+
+<div class="note"><strong>Critical invariant:</strong> there is ONE array of complaints. No page keeps a private dataset. Every statistic is derived by <code>computeStats()</code>, never hardcoded. The behaviour check verifies this with 101 assertions including a full citizen→officer round-trip through the real reducer.</div>
+
+<!-- ============================================================ -->
+<h2><span class="num">4.</span> Where localStorage Is Used</h2>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Key</th><th>Written by</th><th>Content</th></tr></thead>
+<tbody>
+<tr><td><code>nagarsetu.grievances.v1</code></td><td><code>grievanceService.persistState()</code></td><td>Full <code>{ complaints, notifications }</code> array. Written on every reducer dispatch via <code>useEffect</code>. Read once on mount via <code>loadState()</code> as the <code>useReducer</code> lazy initializer.</td></tr>
+<tr><td><code>nagarsetu.auth</code></td><td><code>authService</code></td><td>Mock user session object</td></tr>
+<tr><td><code>nagarsetu.token</code></td><td><code>authService</code></td><td>Mock JWT (placeholder)</td></tr>
+<tr><td><code>nagarsetu.lang</code></td><td>Language selector</td><td>Selected UI language code</td></tr>
+<tr><td><code>nagarsetu.draft</code></td><td>Lodge complaint form</td><td>Unsaved complaint draft</td></tr>
+<tr><td><code>nagarsetu.prefs</code></td><td>Profile page</td><td>User preferences</td></tr>
+</tbody>
+</table></div>
+
+<p>The versioned key (<code>.v1</code>) means a schema change bumps the version and old data is discarded, falling back to the seed — no migration code needed.</p>
+
+<p><strong>Backend swap:</strong> replace the body of <code>loadState()</code> with <code>GET /api/complaints</code> and <code>persistState()</code> with <code>POST/PATCH</code> calls. The reducer, all derivations, and every component remain unchanged.</p>
+
+<!-- ============================================================ -->
+<h2><span class="num">5.</span> Voice Recognition Implementation</h2>
+
+<div class="card">
+<h3>Real Web Speech API — not mocked</h3>
+<p>Module: <code class="path">src/hooks/useSpeechRecognition.js</code></p>
+<ul>
+<li>Uses <code>window.SpeechRecognition</code> / <code>window.webkitSpeechRecognition</code></li>
+<li>Continuous mode with interim results — words appear as the user speaks</li>
+<li>Accumulates finalized chunks across <code>onresult</code> events via a ref</li>
+<li>Language passed to <code>recognition.lang</code>: supports <code>en-IN</code>, <code>hi-IN</code>, <code>ne-NP</code>, <code>gu-IN</code></li>
+<li>Unsupported browsers get: <em>"Speech recognition is not supported in this browser. Please use Chrome or enter your complaint manually."</em></li>
+<li>Error messages mapped per error code: <code>not-allowed</code>, <code>no-speech</code>, <code>audio-capture</code>, <code>network</code>, <code>aborted</code></li>
+<li>Microphone released on unmount via <code>recognition.abort()</code> in a cleanup effect</li>
+</ul>
+
+<h3>Whisper integration point</h3>
+<p>Documented in the hook's JSDoc: for browsers without the Web Speech API, record audio via <code>MediaRecorder</code> and POST the blob to <code>/api/voice/transcribe</code>. The hook's return shape <code>{ transcript, language }</code> matches what the endpoint should return, so the <code>VoiceRecorder</code> component needs no changes.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="num">6.</span> AI Integration Points</h2>
+
+<div class="card">
+<h3>Current: keyword-based classification</h3>
+<p>Module: <code class="path">src/services/aiService.js</code></p>
+<ul>
+<li><code>analyzeText(text)</code> — matches against <code>AI_RULES</code> (keyword arrays per category); returns <code>{ category, priority, department, confidence, language, summary }</code></li>
+<li><code>analyzeImage()</code> — cycles through <code>VISION_RESULTS</code>; returns detected objects + category suggestion</li>
+<li><code>findRelated(complaint, candidates)</code> — scores by category match, word overlap, recency, priority; returns top 3</li>
+<li>Urgency words (<code>dangerous</code>, <code>urgent</code>, <code>flooding</code>, etc.) escalate priority one rank</li>
+<li>Language detection via Unicode script ranges (Devanagari, Gujarati, Tamil, etc.)</li>
+<li>Confidence scales with text length — longer, more specific reports score higher</li>
+</ul>
+
+<h3>Swap-in points (marked with <code>TODO(api)</code>)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Function</th><th>Replace with</th></tr></thead>
+<tbody>
+<tr><td><code>analyzeText()</code></td><td><code>POST /api/ai/analyze</code> — send text, receive structured classification</td></tr>
+<tr><td><code>analyzeImage()</code></td><td><code>POST /api/ai/image-analysis</code> — send image blob, receive detected objects</td></tr>
+<tr><td><code>findRelated()</code></td><td><code>GET /api/complaints/:id/related</code> — embedding-based similarity</td></tr>
+<tr><td>Speech-to-text</td><td><code>POST /api/voice/transcribe</code> — audio blob → Whisper transcript</td></tr>
+</tbody>
+</table></div>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="num">7.</span> Backend Integration Points</h2>
+
+<div class="card">
+<p>The axios client is configured at <code class="path">src/services/apiClient.js</code> with base URL from <code>VITE_API_BASE_URL</code> (default: <code>http://localhost:8000/api</code>), bearer token injection, and 401 handling.</p>
+
+<div class="table-wrap"><table>
+<thead><tr><th>Endpoint</th><th>Frontend module</th><th>Current implementation</th></tr></thead>
+<tbody>
+<tr><td><code>POST /api/complaints</code></td><td><code>grievanceService.buildComplaint()</code></td><td>Builds locally, assigns ID from sequence</td></tr>
+<tr><td><code>GET /api/complaints</code></td><td><code>grievanceService.loadState()</code></td><td>Reads localStorage</td></tr>
+<tr><td><code>GET /api/complaints/:id</code></td><td><code>useComplaint</code> hook</td><td>Finds in array by ID</td></tr>
+<tr><td><code>PATCH /api/complaints/:id</code></td><td><code>grievanceService.applyStatusChange()</code></td><td>Pure function on the record</td></tr>
+<tr><td><code>POST /api/complaints/:id/assign</code></td><td><code>grievanceService.applyAssignment()</code></td><td>Sets assignedOfficer field</td></tr>
+<tr><td><code>POST /api/complaints/:id/status</code></td><td><code>grievanceReducer → ACTIONS.STATUS</code></td><td>Reducer applies and persists</td></tr>
+<tr><td><code>POST /api/voice/transcribe</code></td><td><code>useSpeechRecognition</code></td><td>Web Speech API (real)</td></tr>
+<tr><td><code>POST /api/ai/analyze</code></td><td><code>aiService.analyzeText()</code></td><td>Keyword matching</td></tr>
+<tr><td><code>POST /api/ai/image-analysis</code></td><td><code>aiService.analyzeImage()</code></td><td>Cycles mock results</td></tr>
+</tbody>
+</table></div>
+
+<p><strong>Migration strategy:</strong> each service function's body changes from a local operation to an <code>apiClient.post()</code>/<code>.get()</code>/<code>.patch()</code> call. Return shapes are already designed to match the API contract. No component changes required.</p>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="num">8.</span> Map Integration Points</h2>
+
+<div class="card">
+<h3>Current: data-driven SVG projection</h3>
+<p>Module: <code class="path">src/components/officer/ComplaintMap.jsx</code></p>
+<ul>
+<li>Mercator projection of complaint coordinates onto an SVG canvas</li>
+<li>Priority-colored markers (critical/high/medium/low)</li>
+<li>Click-to-select with detail tooltip</li>
+<li>Responds to filter changes from the officer filters bar</li>
+<li>Auto-fits viewport to the complaint bounds with padding</li>
+</ul>
+
+<h3>Leaflet swap-in (documented in component)</h3>
+<ol>
+<li><code>npm install leaflet react-leaflet</code></li>
+<li>Import Leaflet CSS in <code>styles/index.css</code></li>
+<li>Replace the SVG canvas with <code>&lt;MapContainer&gt;</code> + <code>&lt;TileLayer&gt;</code></li>
+<li>Replace SVG circles with <code>&lt;CircleMarker&gt;</code> using the same priority color map</li>
+<li>Replace click handler with Leaflet's <code>eventHandlers={{ click }}</code></li>
+<li>The <code>complaints</code> prop, filter integration, and detail panel remain unchanged</li>
+</ol>
+
+<h3>Coordinate system</h3>
+<p><code>grievanceUtils.coordsFor()</code> provides coordinates: known demo locations get mapped points from <code>LOCATION_COORDS</code>; unknown locations are scattered deterministically around the city centre using a stable hash of the complaint ID (no jitter between renders).</p>
+</div>
+
+<!-- ============================================================ -->
+<h2><span class="num">9.</span> Remaining Work</h2>
+
+<div class="card">
+<h3>Backend (not in scope for this phase)</h3>
+<ul>
+<li>FastAPI + PostgreSQL for all endpoints listed in §7</li>
+<li>Real JWT authentication (currently mock — <code>ProtectedRoute</code> structure ready)</li>
+<li>Whisper integration for <code>/api/voice/transcribe</code></li>
+<li>ML model for <code>/api/ai/analyze</code> (replace keyword matching)</li>
+<li>Computer vision for <code>/api/ai/image-analysis</code> (replace mock detection)</li>
+<li>Embedding-based duplicate detection for <code>/api/complaints/:id/related</code></li>
+</ul>
+
+<h3>Frontend refinements</h3>
+<ul>
+<li>Leaflet map integration (swap documented, SVG works as interim)</li>
+<li>Real-time updates via WebSocket (currently same-tab reactive via shared state)</li>
+<li>Offline support / service worker for complaint submission in low-connectivity areas</li>
+<li>Export and PDF generation for complaint reports</li>
+<li>Accessibility audit (ARIA landmarks and labels present; full screen-reader testing pending)</li>
+</ul>
+
+<h3>Deployment</h3>
+<ul>
+<li>Docker containerization</li>
+<li>CI/CD pipeline with automated lint + check + smoke + build</li>
+<li>Environment-specific API base URLs (<code>.env.production</code>)</li>
+</ul>
+</div>
+
+<h3>Deliberate deviations from the brief (documented)</h3>
+<div class="table-wrap"><table>
+<thead><tr><th>Brief says</th><th>Implementation</th><th>Reason</th></tr></thead>
+<tbody>
+<tr><td>Nested <code>location: {address, lat, lng}</code></td><td>Flat <code>location</code> string + separate <code>coords: {latitude, longitude}</code></td><td>Avoids churn across ~10 components that already use <code>complaint.location</code></td></tr>
+<tr><td>Leaflet if installed</td><td>Data-driven SVG projection with documented Leaflet swap-in</td><td>Leaflet not installed; SVG works, swap is 6 steps (permitted by brief)</td></tr>
+<tr><td>Charting library</td><td>Inline SVG <code>TrendChart</code></td><td>No charting dependency needed for the two chart types used</td></tr>
+<tr><td>Status "pending"</td><td><code>registered</code> + <code>reopened</code> statuses, labeled "Pending" on dashboards</td><td>Keeps existing status keys; <code>PENDING_STATUSES</code> array documents the grouping</td></tr>
+</tbody>
+</table></div>
+
+<!-- ============================================================ -->
+<h2><span class="num">10.</span> Build Result</h2>
+
+<div class="result">$ npm run lint
+oxlint — 0 warnings, 0 errors
+
+$ npm run check
+All behaviour checks passed. (101 assertions)
+  · AI classification (keyword driven, not canned)
+  · Seed state and the shared store
+  · Complaint creation (POST /api/complaints)
+  · Statistics are derived, never hardcoded
+  · Officer assignment (POST /api/complaints/:id/assign)
+  · Status changes (POST /api/complaints/:id/status)
+  · SLA (derived from priority and age, not stored)
+  · Analytics breakdowns (officer /analytics)
+  · Search, filters and pagination (officer /complaints)
+  · Related complaints (duplicate hint)
+  · End-to-end citizen → officer flow (real reducer)
+  · Persistence round-trip (localStorage)
+
+$ npm run smoke
+All 81 renders completed without errors.
+  · 20 route renders (public + citizen + officer)
+  · 15 guarded-route resolution checks
+  · 46 component renders (pages + data-driven + edge cases)
+
+$ npm run build
+vite v8.2.1 — ✓ built in 455ms
+  dist/index.html                 1.09 kB  (gzip: 0.58 kB)
+  dist/assets/index-*.css       436.15 kB  (gzip: 65.41 kB)
+  dist/assets/index-*.js        456.45 kB  (gzip: 132.79 kB)
+
+$ npm run dev
+VITE v8.2.1 ready — http://localhost:5174/
+  All routes serve HTTP 200</div>
+
+<p style="margin-top:1.5rem;color:var(--ink-muted);font-size:.85rem;text-align:center">
+  NagarSetu · React 19 + Vite 8 + Bootstrap 5 · 113 source files · 20 routes · 101 behaviour checks · 81 render tests
+</p>

@@ -1,0 +1,1460 @@
+/* ==========================================================================
+   NagarSetu — Officer / Government console
+   Loaded after citizen.css so shared primitives (.card-ds, .table-ds, .chip,
+   .badge-ds, .mini-bar) are already defined and only the console-specific
+   pieces live here. Nothing below hard-codes a colour: every value is a token.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Dashboard greeting
+   -------------------------------------------------------------------------- */
+.officer-greeting {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Recent-complaint queue (dashboard)
+   -------------------------------------------------------------------------- */
+.queue {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.queue__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-3) var(--sp-2);
+  border-bottom: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color var(--dur) var(--ease-out);
+}
+.queue li:last-child .queue__row {
+  border-bottom: 0;
+}
+.queue__row:hover,
+.queue__row:focus-visible {
+  background: var(--c-primary-50);
+  color: inherit;
+}
+.queue__main {
+  min-width: 0;
+  flex: 1;
+}
+.queue__id {
+  display: block;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--c-primary-700);
+}
+.queue__title {
+  display: block;
+  margin-top: 0.125rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--fw-semibold);
+  color: var(--c-heading);
+}
+.queue__meta {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.queue__badges {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+}
+.queue-foot {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-primary-700);
+  text-decoration: none;
+}
+.queue-foot:hover {
+  text-decoration: underline;
+  color: var(--c-primary-700);
+}
+
+/* Below `sm` the badges would squeeze the title to a few characters, so the
+   row stacks instead of truncating the only text that identifies it. */
+@media (max-width: 575.98px) {
+  .queue__row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-2);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Distribution bars (categories, priorities, statuses, departments)
+   -------------------------------------------------------------------------- */
+.bar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+/* Flex children default to min-width:auto, so a long department name would
+   push the track wider than its card instead of ellipsing inside it. */
+.bar-list__item {
+  min-width: 0;
+}
+.bar-list__head {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin-bottom: 0.375rem;
+}
+.bar-list__label {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+  flex: 1;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-ink-700);
+}
+.bar-list__label i {
+  color: var(--c-ink-400);
+}
+.bar-list__value {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: var(--c-heading);
+  font-variant-numeric: tabular-nums;
+}
+.bar-list__share {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+  font-variant-numeric: tabular-nums;
+}
+.bar-list__track {
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--c-bg-alt);
+  overflow: hidden;
+}
+.bar-list__fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--c-primary-500);
+  transition: width var(--dur-slow) var(--ease-out);
+}
+.bar-list__track--teal .bar-list__fill {
+  background: var(--c-secondary-500);
+}
+.bar-list__track--amber .bar-list__fill {
+  background: var(--c-accent-500);
+}
+.bar-list__hint {
+  margin: 0.375rem 0 0;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.bar-list__empty {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+}
+
+/* --------------------------------------------------------------------------
+   SLA panel
+   -------------------------------------------------------------------------- */
+.sla-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.sla-grid__cell {
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-sunken);
+}
+.sla-grid__value {
+  display: block;
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-extrabold);
+  line-height: 1;
+  color: var(--c-heading);
+  font-variant-numeric: tabular-nums;
+}
+.sla-grid__label {
+  display: block;
+  margin-top: 0.375rem;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wide);
+  color: var(--c-muted);
+}
+.sla-grid__cell--success {
+  border-color: var(--c-success-soft);
+  background: var(--c-success-soft);
+}
+.sla-grid__cell--success .sla-grid__value {
+  color: var(--c-success);
+}
+.sla-grid__cell--amber {
+  border-color: var(--c-accent-100);
+  background: var(--c-warning-soft);
+}
+.sla-grid__cell--amber .sla-grid__value {
+  color: var(--c-warning);
+}
+.sla-grid__cell--critical {
+  border-color: var(--c-danger-soft);
+  background: var(--c-danger-soft);
+}
+.sla-grid__cell--critical .sla-grid__value {
+  color: var(--c-danger);
+}
+
+.sla-panel__caption {
+  margin: var(--sp-4) 0 var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-caps);
+  color: var(--c-muted);
+}
+.sla-panel__clear {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-success);
+}
+.sla-panel__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sla-panel__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-2);
+  border-bottom: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color var(--dur) var(--ease-out);
+}
+.sla-panel__list li:last-child .sla-panel__row {
+  border-bottom: 0;
+}
+.sla-panel__row:hover,
+.sla-panel__row:focus-visible {
+  background: var(--c-surface-sunken);
+  color: inherit;
+}
+.sla-panel__main {
+  min-width: 0;
+  flex: 1;
+}
+.sla-panel__id {
+  display: block;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--c-primary-700);
+}
+.sla-panel__title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-heading);
+}
+.sla-panel__clock {
+  flex-shrink: 0;
+}
+
+/* Countdown chip. `muted` is the closed case — a resolved complaint has no
+   clock left to run, so it must not read as either healthy or breached. */
+.sla-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: var(--r-pill);
+  border: 1px solid transparent;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.sla-chip--success {
+  border-color: rgba(15, 122, 82, 0.18);
+  background: var(--c-success-soft);
+  color: var(--c-success);
+}
+.sla-chip--amber {
+  border-color: rgba(164, 92, 4, 0.2);
+  background: var(--c-warning-soft);
+  color: var(--c-warning);
+}
+.sla-chip--critical {
+  border-color: rgba(198, 40, 40, 0.2);
+  background: var(--c-danger-soft);
+  color: var(--c-danger);
+}
+.sla-chip--muted {
+  border-color: var(--c-border);
+  background: var(--c-surface-sunken);
+  color: var(--c-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Officer filter bar
+   Seven controls rather than the citizen's five, so the grid takes a narrower
+   minimum before wrapping — otherwise two of them sit alone on a third row.
+   -------------------------------------------------------------------------- */
+.filters__grid--officer {
+  grid-template-columns: repeat(auto-fit, minmax(158px, 1fr));
+}
+
+/* --------------------------------------------------------------------------
+   Nine-column queue table
+   Kept dense: the whole point of this view is scanning many rows at once.
+   -------------------------------------------------------------------------- */
+.table-ds__wrap--officer {
+  overflow-x: auto;
+  border-radius: var(--r-md);
+  border: 1px solid var(--c-border);
+}
+.table-ds--officer {
+  min-width: 1080px;
+}
+.table-ds--officer th,
+.table-ds--officer td {
+  padding: 0.75rem var(--sp-3);
+}
+.table-ds--officer .table-ds__title {
+  max-width: 26ch;
+}
+.table-ds__sub {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+
+/* Nine columns cannot be made to fit a phone, so below 1200px the table is
+   hidden and the card list carries the same rows. */
+.queue-cards {
+  display: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+@media (max-width: 1199.98px) {
+  .table-ds__wrap--officer {
+    display: none;
+  }
+  .queue-cards {
+    display: flex;
+  }
+}
+
+.queue-card {
+  display: block;
+  padding: var(--sp-4);
+  border-radius: var(--r-md);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  box-shadow: var(--sh-xs);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--dur) var(--ease-out),
+    box-shadow var(--dur) var(--ease-out);
+}
+.queue-card:hover,
+.queue-card:focus-visible {
+  border-color: var(--c-primary-300);
+  box-shadow: var(--sh-sm);
+  color: inherit;
+}
+.queue-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+.queue-card__id {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--c-primary-700);
+}
+.queue-card__title {
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: var(--c-heading);
+  line-height: var(--lh-snug);
+}
+.queue-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2) var(--sp-4);
+  margin: 0 0 var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.queue-card__meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+}
+.queue-card__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--c-border);
+}
+.queue-card__date {
+  margin-left: auto;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+
+/* --------------------------------------------------------------------------
+   Pagination
+   -------------------------------------------------------------------------- */
+.pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--c-border);
+}
+.pager__summary {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+  font-variant-numeric: tabular-nums;
+}
+.pager__summary strong {
+  color: var(--c-heading);
+}
+.pager__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+.pager__slot {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+.pager__gap {
+  padding: 0 0.25rem;
+  color: var(--c-ink-400);
+}
+/* 40px square keeps every target above the 44px-with-gap touch guideline on
+   the narrow layouts where the pager sits under a card list. */
+.pager__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 var(--sp-2);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-ink-600);
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease-out),
+    background-color var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+.pager__btn:hover:not(:disabled) {
+  border-color: var(--c-primary-300);
+  background: var(--c-primary-50);
+  color: var(--c-primary-700);
+}
+.pager__btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.pager__btn--active,
+.pager__btn--active:hover:not(:disabled) {
+  border-color: var(--c-primary-600);
+  background: var(--c-primary-600);
+  color: #fff;
+}
+
+/* --------------------------------------------------------------------------
+   Status update modal
+   -------------------------------------------------------------------------- */
+.modal-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: var(--sp-3);
+  border-radius: var(--r-sm);
+  background: var(--c-primary-50);
+  font-size: var(--fs-sm);
+  color: var(--c-ink-600);
+  line-height: var(--lh-snug);
+}
+.modal-note i {
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  color: var(--c-primary-600);
+}
+.proof-input {
+  display: block;
+  width: 100%;
+  font-size: var(--fs-sm);
+  color: var(--c-ink-600);
+}
+.proof-input::file-selector-button {
+  margin-right: var(--sp-3);
+  padding: 0.45rem var(--sp-3);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--c-border-strong);
+  background: var(--c-surface-sunken);
+  font-family: inherit;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-ink-700);
+  cursor: pointer;
+}
+.proof-input::file-selector-button:hover {
+  border-color: var(--c-primary-300);
+  background: var(--c-primary-50);
+  color: var(--c-primary-700);
+}
+
+/* --------------------------------------------------------------------------
+   Officer roster (assignment modal)
+   -------------------------------------------------------------------------- */
+.roster {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.roster__item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease-out),
+    background-color var(--dur) var(--ease-out);
+}
+.roster__item:hover {
+  border-color: var(--c-primary-300);
+  background: var(--c-primary-50);
+}
+.roster__item--active {
+  border-color: var(--c-primary-600);
+  background: var(--c-primary-50);
+}
+/* The radio itself is visually hidden but still focusable, so keyboard users
+   get the ring on the label they can actually see. */
+.roster__item:focus-within {
+  box-shadow: var(--sh-focus);
+}
+.roster__item input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.roster__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: var(--r-pill);
+  background: var(--c-primary-100);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-bold);
+  color: var(--c-primary-700);
+}
+.roster__body {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+.roster__name {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: var(--c-heading);
+}
+.roster__tag {
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--r-pill);
+  background: var(--c-secondary-50);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--c-secondary-700);
+}
+.roster__role,
+.roster__contact {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.roster__check {
+  flex-shrink: 0;
+  font-size: var(--fs-lg);
+  color: var(--c-primary-600);
+}
+
+/* --------------------------------------------------------------------------
+   Complaint detail
+   -------------------------------------------------------------------------- */
+.detail-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  box-shadow: var(--sh-xs);
+}
+.detail-strip__meta {
+  margin-left: auto;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.detail__description {
+  margin: 0 0 var(--sp-5);
+  font-size: var(--fs-md);
+  color: var(--c-ink-700);
+  line-height: var(--lh-relaxed);
+  white-space: pre-line;
+}
+
+/* Two columns of label/value pairs; `--single` is the narrow sidebar variant. */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--sp-3) var(--sp-5);
+}
+.info-grid--single {
+  grid-template-columns: 1fr;
+}
+.info-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+.info-row > i {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  color: var(--c-ink-400);
+}
+.info-row__label {
+  display: block;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wide);
+  color: var(--c-muted);
+}
+.info-row__value {
+  display: block;
+  margin-top: 0.125rem;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--c-ink-800);
+  overflow-wrap: anywhere;
+}
+
+.transcript-block {
+  margin-top: var(--sp-5);
+  padding: var(--sp-4);
+  border-radius: var(--r-md);
+  border-left: 3px solid var(--c-secondary-500);
+  background: var(--c-secondary-50);
+}
+.transcript-block__label {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-wide);
+  color: var(--c-secondary-700);
+}
+.transcript-block__text {
+  margin: 0;
+  font-size: var(--fs-base);
+  color: var(--c-ink-700);
+  line-height: var(--lh-normal);
+}
+
+.ai-summary {
+  margin: var(--sp-4) 0 0;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  background: var(--c-primary-50);
+  font-size: var(--fs-sm);
+  color: var(--c-ink-700);
+  line-height: var(--lh-normal);
+}
+.ai-keywords {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin: var(--sp-3) 0 0;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.ai-keywords__chip {
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--r-pill);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-sunken);
+  font-family: var(--font-mono);
+  color: var(--c-ink-600);
+}
+
+.evidence__img {
+  display: block;
+  width: 100%;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: var(--r-md);
+  border: 1px solid var(--c-border);
+}
+.evidence__label {
+  margin: var(--sp-5) 0 var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-caps);
+  color: var(--c-muted);
+}
+.evidence__none {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-8) var(--sp-4);
+  border-radius: var(--r-md);
+  border: 1px dashed var(--c-border-strong);
+  background: var(--c-surface-sunken);
+  text-align: center;
+  color: var(--c-muted);
+}
+.evidence__none i {
+  font-size: var(--fs-2xl);
+  color: var(--c-ink-300);
+}
+.evidence__none p {
+  margin: 0;
+  font-size: var(--fs-sm);
+}
+
+/* Assignee card — the empty variant is deliberately muted so an unassigned
+   complaint looks unfinished rather than looking like a person's record. */
+.assignee {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+}
+.assignee__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: var(--r-pill);
+  background: var(--c-primary-100);
+  font-size: var(--fs-lg);
+  color: var(--c-primary-700);
+}
+.assignee--empty .assignee__avatar {
+  background: var(--c-bg-alt);
+  color: var(--c-ink-400);
+}
+.assignee__name {
+  margin: 0;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: var(--c-heading);
+}
+.assignee__role,
+.assignee__contact {
+  margin: 0.125rem 0 0;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+  overflow-wrap: anywhere;
+}
+
+.detail__place {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin: 0;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--c-ink-700);
+  line-height: var(--lh-snug);
+}
+.detail__place i {
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  color: var(--c-danger);
+}
+.detail__coords {
+  margin: var(--sp-2) 0 var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.detail__approx {
+  font-family: var(--font-sans);
+  font-style: italic;
+}
+.detail__resolution {
+  margin: 0;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  border-left: 3px solid var(--c-success);
+  background: var(--c-success-soft);
+  font-size: var(--fs-sm);
+  color: var(--c-ink-700);
+  line-height: var(--lh-normal);
+}
+
+.related-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.related-list__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-2);
+  border-bottom: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: background-color var(--dur) var(--ease-out);
+}
+.related-list li:last-child .related-list__row {
+  border-bottom: 0;
+}
+.related-list__row:hover,
+.related-list__row:focus-visible {
+  background: var(--c-surface-sunken);
+  color: inherit;
+}
+.related-list__id {
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--c-primary-700);
+}
+.related-list__title {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-sm);
+  color: var(--c-ink-700);
+}
+
+/* Timeline action label — the "what happened", above the free-text note. */
+.activity__action {
+  margin: 0.125rem 0 0;
+  font-size: var(--fs-sm);
+  color: var(--c-ink-700);
+}
+
+@media (max-width: 575.98px) {
+  .detail-strip__meta {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Department cards
+   -------------------------------------------------------------------------- */
+.dept-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+.dept-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+}
+.dept-card__name {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  color: var(--c-heading);
+  line-height: var(--lh-snug);
+}
+.dept-card__sub {
+  margin: 0.125rem 0 0;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.dept-card__stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-2);
+  margin: var(--sp-4) 0 0;
+}
+.dept-card__stats dt {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-medium);
+  color: var(--c-muted);
+}
+.dept-card__stats dd {
+  margin: 0.125rem 0 0;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  color: var(--c-heading);
+  font-variant-numeric: tabular-nums;
+}
+.dept-card__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--c-border);
+}
+.dept-card__rate {
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+/* Pushed to the bottom so the link sits on the same line across a row of
+   cards whose department names wrap to different heights. */
+.dept-card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: auto;
+  padding-top: var(--sp-3);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-primary-700);
+  text-decoration: none;
+}
+.dept-card__link:hover {
+  text-decoration: underline;
+  color: var(--c-primary-700);
+}
+
+/* Figure tints, reused by the department stats and anywhere a single number
+   needs to carry its own meaning without a full badge. */
+.is-amber {
+  color: var(--c-warning) !important;
+}
+.is-teal {
+  color: var(--c-secondary-600) !important;
+}
+.is-success {
+  color: var(--c-success) !important;
+}
+
+@media (max-width: 400px) {
+  .dept-card__stats {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--sp-3) var(--sp-2);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Trend chart (inline SVG — no charting dependency)
+   -------------------------------------------------------------------------- */
+.trend {
+  width: 100%;
+}
+.trend__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-3);
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.trend__key {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.trend__key::before {
+  content: "";
+  width: 14px;
+  height: 3px;
+  border-radius: var(--r-pill);
+  background: var(--c-ink-300);
+}
+.trend__key--created::before {
+  background: var(--c-primary-500);
+}
+.trend__key--resolved::before {
+  background: var(--c-success);
+}
+/* The viewBox is a fixed 640 units wide, so everything inside — including the
+   axis text — scales with the container. Below ~520px the labels stop being
+   readable, so the wrapper scrolls rather than letting the chart shrink; the
+   page itself still never gains a horizontal scrollbar. */
+.trend__scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+.trend__svg {
+  display: block;
+  width: 100%;
+  min-width: 520px;
+  height: auto;
+}
+.trend__grid {
+  stroke: var(--c-border);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.trend__axis {
+  font-size: 10px;
+  fill: var(--c-muted);
+}
+.trend__area {
+  fill: var(--c-primary-500);
+  opacity: 0.08;
+}
+.trend__line {
+  fill: none;
+  stroke: var(--c-success);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+}
+.trend__line--created {
+  stroke: var(--c-primary-500);
+}
+.trend__line--resolved {
+  stroke: var(--c-success);
+}
+.trend__dot {
+  fill: var(--c-success);
+}
+.trend__dot--created {
+  fill: var(--c-primary-500);
+}
+
+/* Smaller segmented control, for use inside a card header. */
+.segmented--sm .segmented__btn {
+  padding: 0.3rem 0.6rem;
+  font-size: var(--fs-xs);
+}
+
+/* --------------------------------------------------------------------------
+   Complaint map
+   A projected SVG plot until Leaflet is installed — see the integration note
+   in ComplaintMap.jsx. The pin geometry below is what Leaflet's CircleMarker
+   would replace; nothing else on the page depends on it.
+   -------------------------------------------------------------------------- */
+.geomap {
+  width: 100%;
+}
+.geomap__canvas {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  min-height: 260px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-sunken);
+  overflow: hidden;
+}
+.geomap__grid {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.geomap__grid line {
+  stroke: var(--c-border);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.geomap__pins {
+  position: absolute;
+  inset: 0;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.geomap__pin-wrap {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+.geomap__empty {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: var(--sp-6);
+  text-align: center;
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+}
+.geomap__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin: var(--sp-3) 0 0;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+  line-height: var(--lh-snug);
+}
+.geomap__note i {
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+  color: var(--c-primary-600);
+}
+.geomap__note code {
+  font-family: var(--font-mono);
+  font-size: 0.95em;
+  color: var(--c-ink-600);
+}
+
+/* 28px hit area around a 12px dot: the target stays touch-friendly without
+   the visible marker swallowing its neighbours on a dense map. */
+.map-pin {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-pill);
+  background: transparent;
+  cursor: pointer;
+}
+.map-pin__dot {
+  width: 12px;
+  height: 12px;
+  border-radius: var(--r-pill);
+  border: 2px solid var(--c-surface);
+  background: var(--c-ink-400);
+  box-shadow: var(--sh-sm);
+  transition: transform var(--dur) var(--ease-out);
+}
+.map-pin:hover .map-pin__dot,
+.map-pin:focus-visible .map-pin__dot {
+  transform: scale(1.35);
+}
+.map-pin--critical .map-pin__dot {
+  background: var(--c-danger);
+}
+.map-pin--high .map-pin__dot {
+  background: var(--c-accent-600);
+}
+.map-pin--medium .map-pin__dot {
+  background: var(--c-primary-500);
+}
+.map-pin--low .map-pin__dot {
+  background: var(--c-secondary-500);
+}
+.map-pin--focus .map-pin__dot {
+  transform: scale(1.5);
+  box-shadow: 0 0 0 5px rgba(42, 75, 212, 0.22);
+}
+
+/* Tooltip is decorative: the same text is already on the button's aria-label,
+   so a screen reader hears it without the hover. */
+.map-pin__tip {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 150px;
+  max-width: 220px;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-sm);
+  background: var(--c-surface-inverse);
+  font-size: var(--fs-xs);
+  color: var(--c-muted-inverse);
+  line-height: var(--lh-snug);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--dur) var(--ease-out);
+  pointer-events: none;
+  z-index: 2;
+}
+.map-pin__tip strong {
+  color: var(--c-text-inverse);
+}
+.geomap__pin-wrap:hover .map-pin__tip,
+.map-pin:focus-visible + .map-pin__tip {
+  opacity: 1;
+  visibility: visible;
+}
+
+.map-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3) var(--sp-5);
+  list-style: none;
+  margin: var(--sp-4) 0 0;
+  padding: 0;
+  font-size: var(--fs-xs);
+  color: var(--c-ink-600);
+}
+.map-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.map-legend__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--r-pill);
+  background: var(--c-ink-400);
+}
+.map-legend__dot--critical {
+  background: var(--c-danger);
+}
+.map-legend__dot--high {
+  background: var(--c-accent-600);
+}
+.map-legend__dot--medium {
+  background: var(--c-primary-500);
+}
+.map-legend__dot--low {
+  background: var(--c-secondary-500);
+}
+.map-legend__count {
+  padding: 0.05rem 0.4rem;
+  border-radius: var(--r-pill);
+  background: var(--c-bg-alt);
+  font-weight: var(--fw-bold);
+  color: var(--c-ink-700);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Map side panel */
+.map-panel__id {
+  margin: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--c-primary-700);
+}
+.map-panel__title {
+  margin: 0;
+  font-size: var(--fs-md);
+  font-weight: var(--fw-bold);
+  color: var(--c-heading);
+  line-height: var(--lh-snug);
+}
+.map-panel__meta {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-ink-600);
+  line-height: var(--lh-snug);
+}
+.map-panel__meta i {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+  color: var(--c-ink-400);
+}
+.map-panel__desc {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+  line-height: var(--lh-normal);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.map-panel__hint {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+  line-height: var(--lh-snug);
+}
+.map-panel__hint i {
+  margin-top: 0.15rem;
+  flex-shrink: 0;
+}
+
+.map-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.map-list__row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  padding: var(--sp-3) var(--sp-2);
+  border: 0;
+  border-bottom: 1px solid var(--c-border);
+  border-radius: var(--r-sm);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur) var(--ease-out);
+}
+.map-list li:last-child .map-list__row {
+  border-bottom: 0;
+}
+.map-list__row:hover {
+  background: var(--c-surface-sunken);
+}
+.map-list__row--active {
+  background: var(--c-primary-50);
+}
+.map-list__id {
+  flex-shrink: 0;
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--c-primary-700);
+}
+.map-list__title {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-sm);
+  color: var(--c-ink-700);
+}
+.map-list__more {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-primary-700);
+  text-decoration: none;
+}
+.map-list__more:hover {
+  text-decoration: underline;
+  color: var(--c-primary-700);
+}
+
+/* --------------------------------------------------------------------------
+   Officer profile — demo data controls
+   -------------------------------------------------------------------------- */
+.demo-tools {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.demo-tools__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  padding: var(--sp-4);
+  border-radius: var(--r-md);
+  border: 1px solid var(--c-border);
+  background: var(--c-surface-sunken);
+}
+.demo-tools__title {
+  margin: 0;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-semibold);
+  color: var(--c-heading);
+}
+.demo-tools__text {
+  margin: 0.25rem 0 0;
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+  line-height: var(--lh-snug);
+}
+
+@media (max-width: 575.98px) {
+  .demo-tools__item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sp-3);
+  }
+}

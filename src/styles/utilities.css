@@ -1,0 +1,263 @@
+/* ==========================================================================
+   Utilities — small composable helpers layered on top of Bootstrap
+   ========================================================================== */
+
+/* ---------- Layout ---------- */
+.section {
+  padding-block: var(--section-y);
+  position: relative;
+}
+.section--tight {
+  padding-block: clamp(2.5rem, 5vw, 4rem);
+}
+.section--alt {
+  background: var(--c-bg-alt);
+}
+.section--surface {
+  background: var(--c-surface);
+}
+.section--inverse {
+  background: var(--c-surface-inverse);
+  color: var(--c-text-inverse);
+}
+.section--inverse h1,
+.section--inverse h2,
+.section--inverse h3,
+.section--inverse h4 {
+  color: #fff;
+}
+
+/* Vertical rhythm. Each `.stack-N` is self-contained (it sets the flex column
+   itself) so call sites can write `stack-4` on its own. */
+.stack,
+.stack-1,
+.stack-2,
+.stack-3,
+.stack-4,
+.stack-5,
+.stack-6 {
+  display: flex;
+  flex-direction: column;
+}
+.stack-1 {
+  gap: var(--sp-1);
+}
+.stack-2 {
+  gap: var(--sp-2);
+}
+.stack-3 {
+  gap: var(--sp-3);
+}
+.stack-4 {
+  gap: var(--sp-4);
+}
+.stack-5 {
+  gap: var(--sp-5);
+}
+.stack-6 {
+  gap: var(--sp-6);
+}
+
+.cluster {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+/* ---------- Type helpers ---------- */
+.text-heading {
+  color: var(--c-heading);
+}
+.text-muted-soft {
+  color: var(--c-muted);
+}
+.text-inverse {
+  color: var(--c-text-inverse);
+}
+.text-muted-inverse {
+  color: var(--c-muted-inverse);
+}
+.text-primary-brand {
+  color: var(--c-primary);
+}
+.text-accent {
+  color: var(--c-accent-700);
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+.text-pretty {
+  text-wrap: pretty;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  letter-spacing: var(--ls-caps);
+  text-transform: uppercase;
+  color: var(--c-primary-700);
+}
+.eyebrow::before {
+  content: "";
+  width: 22px;
+  height: 2px;
+  border-radius: var(--r-pill);
+  background: currentColor;
+  opacity: 0.55;
+}
+.eyebrow--inverse {
+  color: var(--c-secondary-300);
+}
+.eyebrow--center::before {
+  display: none;
+}
+
+.lead-text {
+  font-size: clamp(1rem, 1.6vw, var(--fs-lg));
+  line-height: var(--lh-relaxed);
+  color: var(--c-ink-600);
+}
+.section--inverse .lead-text {
+  color: var(--c-muted-inverse);
+}
+
+.num-tabular {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  letter-spacing: 0;
+}
+
+/* Gradient text — used sparingly, on one or two words only */
+.text-gradient {
+  background: linear-gradient(
+    92deg,
+    var(--c-primary-600) 0%,
+    var(--c-secondary-600) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---------- Surfaces ---------- */
+.surface {
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-lg);
+}
+.surface-sunken {
+  background: var(--c-surface-sunken);
+}
+
+.divider {
+  height: 1px;
+  background: var(--c-border);
+  border: 0;
+}
+.divider--inverse {
+  background: var(--c-border-inverse);
+}
+
+/* ---------- Decorative backdrops (CSS-only, no images) ---------- */
+.bg-grid {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(
+      to right,
+      rgba(42, 75, 212, 0.055) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(42, 75, 212, 0.055) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(
+    ellipse 80% 60% at 50% 0%,
+    #000 20%,
+    transparent 78%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 80% 60% at 50% 0%,
+    #000 20%,
+    transparent 78%
+  );
+}
+
+.bg-dots-inverse {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    rgba(255, 255, 255, 0.09) 1px,
+    transparent 1px
+  );
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, #000, transparent 75%);
+  -webkit-mask-image: radial-gradient(
+    ellipse 70% 70% at 50% 50%,
+    #000,
+    transparent 75%
+  );
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  pointer-events: none;
+  opacity: 0.5;
+}
+.glow--primary {
+  background: radial-gradient(circle, rgba(67, 100, 228, 0.4), transparent 70%);
+}
+.glow--teal {
+  background: radial-gradient(circle, rgba(20, 168, 156, 0.32), transparent 70%);
+}
+
+/* ---------- Focus ring helper ---------- */
+.ring-focus:focus-visible {
+  outline: none;
+  box-shadow: var(--sh-focus);
+}
+
+/* ---------- Scroll behaviour helpers ---------- */
+.scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.scroll-x::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- Visibility ---------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- Aspect / sizing ---------- */
+.full-bleed-y {
+  min-height: calc(100vh - var(--navbar-h));
+}
+
+/* Bootstrap has no min-width:0 helper; flex children need it to truncate. */
+.min-w-0 {
+  min-width: 0;
+}

@@ -1,0 +1,175 @@
+/* ==========================================================================
+   Animations — subtle, purposeful. All respect prefers-reduced-motion
+   (globally neutralised in base.css).
+   ========================================================================== */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 18px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translate3d(24px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes softPulse {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.16;
+    transform: scale(1.5);
+  }
+}
+
+@keyframes flowDash {
+  to {
+    stroke-dashoffset: -22;
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: -420px 0;
+  }
+  to {
+    background-position: 420px 0;
+  }
+}
+
+@keyframes spinnerRotate {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes waveBar {
+  0%,
+  100% {
+    transform: scaleY(0.28);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-9px);
+  }
+}
+
+/* ---------- Entrance helpers ---------- */
+.anim-fade-up {
+  animation: fadeInUp var(--dur-slow) var(--ease-out) both;
+}
+.anim-fade {
+  animation: fadeIn var(--dur-slow) var(--ease-out) both;
+}
+.anim-scale-in {
+  animation: scaleIn var(--dur) var(--ease-out) both;
+}
+
+.delay-1 {
+  animation-delay: 70ms;
+}
+.delay-2 {
+  animation-delay: 140ms;
+}
+.delay-3 {
+  animation-delay: 210ms;
+}
+.delay-4 {
+  animation-delay: 280ms;
+}
+.delay-5 {
+  animation-delay: 350ms;
+}
+.delay-6 {
+  animation-delay: 420ms;
+}
+
+/* ---------- Scroll reveal (driven by useScrollReveal) ---------- */
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, 22px, 0);
+  transition: opacity 620ms var(--ease-out), transform 620ms var(--ease-out);
+  will-change: opacity, transform;
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---------- Skeleton loading ---------- */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(
+    90deg,
+    var(--c-bg-alt) 8%,
+    #f7f9fd 20%,
+    var(--c-bg-alt) 34%
+  );
+  background-size: 840px 100%;
+  animation: shimmer 1.4s linear infinite;
+  border-radius: var(--r-sm);
+}
+.skeleton--text {
+  height: 12px;
+  margin-bottom: var(--sp-2);
+}
+.skeleton--title {
+  height: 18px;
+  width: 55%;
+  margin-bottom: var(--sp-3);
+}
+.skeleton--circle {
+  border-radius: 50%;
+}
