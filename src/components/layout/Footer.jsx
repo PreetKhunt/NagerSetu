@@ -49,7 +49,7 @@ export default function Footer() {
       <div className="container position-relative">
         <div className="row g-5">
           <div className="col-lg-4">
-            <Brand variant="inverse" />
+            <Brand />
             <p className="footer-ds__about">
               An AI-assisted grievance platform that helps citizens report civic
               issues in their own language, and helps departments resolve them

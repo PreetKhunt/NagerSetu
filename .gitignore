@@ -11,17 +11,11 @@ node_modules
 dist
 dist-ssr
 *.local
-.vite
-coverage
 
 # Local environment values — never commit these. .env.example is the template.
 .env
 .env.*
 !.env.example
-
-# Local agent/tool settings
-.claude/
-.codex/
 
 # Editor directories and files
 .vscode/*

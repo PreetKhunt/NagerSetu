@@ -66,6 +66,7 @@
   --c-surface: #ffffff; /* cards, panels */
   --c-surface-sunken: #f8fafd;
   --c-surface-inverse: #0d1526; /* dark sections, footer */
+  --c-topbar-bg: rgba(255, 255, 255, 0.88);
 
   --c-border: #e3e8f0;
   --c-border-strong: #cfd7e3;
@@ -158,4 +159,52 @@
   --z-navbar: 1040;
   --z-modal: 1060;
   --z-toast: 1080;
+}
+
+/* ==========================================================================
+   Dark Theme Overrides
+   ========================================================================== */
+[data-theme="dark"] {
+  /* ---------- Neutrals / Surfaces ---------- */
+  --c-ink-900: #f8fafd; /* headings */
+  --c-ink-800: #e3e8f0;
+  --c-ink-700: #cfd7e3; /* body */
+  --c-ink-600: #8a93a6;
+  --c-ink-500: #667088; /* muted */
+  --c-ink-400: #47536e;
+  --c-ink-300: #26324d;
+
+  --c-bg: #0b1220; /* app background */
+  --c-bg-alt: #0f182b; /* alternating band */
+  --c-surface: #16203a; /* cards, panels */
+  --c-surface-sunken: #080c16;
+  --c-surface-inverse: #f8fafd; /* dark sections, footer */
+  --c-topbar-bg: rgba(22, 32, 58, 0.88); /* #16203a with opacity */
+
+  --c-border: #26324d;
+  --c-border-strong: #47536e;
+  --c-border-inverse: rgba(0, 0, 0, 0.12);
+
+  --c-text: var(--c-ink-700);
+  --c-heading: var(--c-ink-900);
+  --c-muted: var(--c-ink-500);
+  --c-text-inverse: #0b1220;
+  --c-muted-inverse: #47536e;
+
+  /* ---------- Soft Colors for Dark Mode ---------- */
+  --c-primary-hover: #93abfa; /* --c-primary-300 for better dark contrast */
+  --c-primary-soft: rgba(42, 75, 212, 0.15);
+  --c-secondary-soft: rgba(13, 141, 131, 0.15);
+  --c-accent-soft: rgba(217, 125, 6, 0.15);
+  --c-success-soft: rgba(15, 122, 82, 0.15);
+  --c-warning-soft: rgba(164, 92, 4, 0.15);
+  --c-danger-soft: rgba(198, 40, 40, 0.15);
+  --c-info-soft: rgba(31, 111, 178, 0.15);
+
+  /* ---------- Elevation ---------- */
+  --sh-xs: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --sh-sm: 0 1px 2px rgba(0, 0, 0, 0.3), 0 2px 6px rgba(0, 0, 0, 0.3);
+  --sh-md: 0 2px 4px rgba(0, 0, 0, 0.3), 0 8px 20px rgba(0, 0, 0, 0.4);
+  --sh-lg: 0 4px 8px rgba(0, 0, 0, 0.3), 0 18px 42px rgba(0, 0, 0, 0.5);
+  --sh-xl: 0 8px 16px rgba(0, 0, 0, 0.3), 0 32px 68px rgba(0, 0, 0, 0.6);
 }

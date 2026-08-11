@@ -142,15 +142,7 @@ export default function Login() {
           </Button>
         </form>
 
-        <div className="demo-note">
-          <i className="bi bi-info-circle" aria-hidden="true" />
-          <span>
-            <strong>Prototype build</strong>
-            Authentication is not connected yet. Any details are accepted, or
-            use <code>Continue with demo account</code> to jump straight into
-            the {role === ROLES.OFFICER ? "officer" : "citizen"} dashboard.
-          </span>
-        </div>
+
       </div>
 
       <p className="auth__foot">

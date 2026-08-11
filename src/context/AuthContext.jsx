@@ -4,13 +4,11 @@ import * as authService from "../services/authService";
 import { ROLES, STORAGE_KEYS } from "../utils/constants";
 
 /**
- * Auth provider — UI-only session state.
+ * Auth provider — manages the current session state.
  *
  * Holds the "signed in" user in React state and mirrors it to localStorage so
- * a refresh does not bounce the user out of the dashboard during a demo.
- * This is NOT authentication: no password is verified and the token is a
- * placeholder string. Swap `authService` for real API calls later; this
- * provider's surface will not need to change.
+ * a refresh does not bounce the user out. It delegates actual authentication
+ * to the `authService` which handles real API calls or development mocks.
  */
 function readStoredUser() {
   try {

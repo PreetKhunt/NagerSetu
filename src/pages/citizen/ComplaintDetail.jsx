@@ -21,6 +21,7 @@ import useComplaint from "../../hooks/useComplaint";
 import useGrievances from "../../hooks/useGrievances";
 import { COMPLAINT_STATUS, PATHS } from "../../utils/constants";
 import { formatDate, formatDateTime, timeAgo } from "../../utils/formatters";
+import { LOCATION_COORDS } from "../../utils/mockData";
 
 /**
  * Full record for one complaint: lifecycle, activity log, assigned officer,
@@ -49,6 +50,28 @@ export default function ComplaintDetail() {
     setReopenOpen(false);
     toast.success("Complaint reopened", "The department has been notified.");
   };
+
+  const handleDirections = () => {
+    const lat = complaint.coords?.latitude || complaint.coords?.lat;
+    const lng = complaint.coords?.longitude || complaint.coords?.lng;
+    if (lat && lng) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
+    } else if (complaint.location) {
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(complaint.location)}`, '_blank');
+    } else {
+      toast.error("Location error", "Location information not available for directions.");
+    }
+  };
+
+  const popupContent = (
+    <div className="map-popup text-center">
+      <h6 className="mb-1">{complaint.title}</h6>
+      <p className="small mb-2 text-muted">{complaint.location}</p>
+      <button className="btn btn-sm btn-primary w-100" onClick={handleDirections}>
+        <i className="bi bi-cursor-fill me-1"></i> Get Directions
+      </button>
+    </div>
+  );
 
   if (!complaint) {
     return (
@@ -212,7 +235,7 @@ export default function ComplaintDetail() {
                   </span>
                 }
               />
-              <MapPlaceholder location={complaint.location} />
+              <MapPlaceholder location={complaint.location} coords={complaint.coords} popupContent={popupContent} />
             </Card>
           </div>
         </div>

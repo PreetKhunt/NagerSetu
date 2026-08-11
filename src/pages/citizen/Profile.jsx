@@ -15,6 +15,7 @@ import useAuth from "../../hooks/useAuth";
 import useToast from "../../hooks/useToast";
 import useDocumentTitle from "../../hooks/useDocumentTitle";
 import * as profileService from "../../services/profileService";
+import { aadhaarVerificationService } from "../../services/AadhaarVerificationService";
 import { LANGUAGES, PATHS } from "../../utils/constants";
 import { formatDate } from "../../utils/formatters";
 import { isEmail, isMobile, passwordScore } from "../../utils/validators";
@@ -83,6 +84,15 @@ export default function Profile() {
   const [password, setPassword] = useState(EMPTY_PASSWORD);
   const [passwordErrors, setPasswordErrors] = useState({});
   const [changingPassword, setChangingPassword] = useState(false);
+
+  const [aadhaarOpen, setAadhaarOpen] = useState(false);
+  const [aadhaarNumber, setAadhaarNumber] = useState("");
+  const [aadhaarOtp, setAadhaarOtp] = useState("");
+  const [aadhaarReference, setAadhaarReference] = useState("");
+  const [aadhaarStep, setAadhaarStep] = useState(1);
+  const [linkingAadhaar, setLinkingAadhaar] = useState(false);
+  const [aadhaarError, setAadhaarError] = useState("");
+  const [aadhaarMessage, setAadhaarMessage] = useState("");
 
   // Seed the form from the session once the user object is available.
   useEffect(() => {
@@ -172,6 +182,51 @@ export default function Profile() {
     }
   };
 
+  const requestAadhaarOtp = async (e) => {
+    e.preventDefault();
+    if (aadhaarNumber.replace(/\D/g, "").length !== 12) {
+      setAadhaarError("Enter a valid 12-digit Aadhaar number");
+      return;
+    }
+    setAadhaarError("");
+    setLinkingAadhaar(true);
+    try {
+      const res = await aadhaarVerificationService.startVerification(aadhaarNumber.replace(/\D/g, ""));
+      setAadhaarReference(res.referenceId);
+      setAadhaarMessage(res.message || `OTP sent to mobile ending in ${res.maskedMobile}`);
+      setAadhaarStep(2);
+    } catch (err) {
+      setAadhaarError(err.message || "Failed to start verification");
+    } finally {
+      setLinkingAadhaar(false);
+    }
+  };
+
+  const verifyAadhaarOtp = async (e) => {
+    e.preventDefault();
+    if (!aadhaarOtp) {
+      setAadhaarError("Enter OTP");
+      return;
+    }
+    setLinkingAadhaar(true);
+    setAadhaarError("");
+    try {
+      await aadhaarVerificationService.verifyOtp(aadhaarReference, aadhaarOtp);
+      updateUser({ aadhaarLinked: true });
+      setAadhaarOpen(false);
+      setAadhaarStep(1);
+      setAadhaarNumber("");
+      setAadhaarOtp("");
+      setAadhaarReference("");
+      setAadhaarMessage("");
+      toast.success("Aadhaar linked", "Your identity has been verified.");
+    } catch (err) {
+      setAadhaarError(err.message || "Failed to verify Aadhaar");
+    } finally {
+      setLinkingAadhaar(false);
+    }
+  };
+
   const strength = passwordScore(password.next);
 
   return (
@@ -208,10 +263,21 @@ export default function Profile() {
                 Verified citizen
               </span>
             )}
-            <span className="chip chip--soft">
-              <i className="bi bi-shield-lock" aria-hidden="true" />
-              Aadhaar not linked
-            </span>
+            {user?.aadhaarLinked ? (
+              <span className="chip chip--success">
+                <i className="bi bi-shield-check" aria-hidden="true" />
+                Aadhaar linked
+              </span>
+            ) : (
+              <button 
+                type="button" 
+                className="chip chip--soft chip--interactive"
+                onClick={() => setAadhaarOpen(true)}
+              >
+                <i className="bi bi-shield-lock" aria-hidden="true" />
+                Aadhaar not linked
+              </button>
+            )}
           </div>
         </div>
       </Card>
@@ -538,6 +604,90 @@ export default function Profile() {
             only — no credentials leave your browser.
           </p>
         </form>
+      </Modal>
+
+      {/* ---------- Aadhaar verification ---------- */}
+      <Modal
+        open={aadhaarOpen}
+        onClose={() => {
+          if (linkingAadhaar) return;
+          setAadhaarOpen(false);
+          setAadhaarError("");
+          setAadhaarMessage("");
+          setAadhaarStep(1);
+        }}
+        title="Link Aadhaar"
+        description="Verify your identity using your Aadhaar number."
+        footer={
+          <>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setAadhaarOpen(false);
+                setAadhaarError("");
+                setAadhaarMessage("");
+                setAadhaarStep(1);
+              }}
+              disabled={linkingAadhaar}
+            >
+              Cancel
+            </Button>
+            {aadhaarStep === 1 ? (
+              <Button icon="bi-arrow-right" loading={linkingAadhaar} onClick={requestAadhaarOtp}>
+                Request OTP
+              </Button>
+            ) : (
+              <Button
+                icon="bi-check-lg"
+                loading={linkingAadhaar}
+                onClick={verifyAadhaarOtp}
+              >
+                Verify & Link
+              </Button>
+            )}
+          </>
+        }
+      >
+        {aadhaarStep === 1 ? (
+          <form className="stack-4" onSubmit={requestAadhaarOtp} noValidate>
+            <FormField
+              label="Aadhaar number"
+              name="aadhaar-number"
+              icon="bi-fingerprint"
+              value={aadhaarNumber}
+              onChange={(e) => setAadhaarNumber(e.target.value)}
+              error={aadhaarError}
+              placeholder="0000 0000 0000"
+              maxLength={12}
+              required
+            />
+            <p className="text-muted-soft small mb-0">
+              Your Aadhaar number is securely encrypted and never stored in plain text.
+            </p>
+          </form>
+        ) : (
+          <form className="stack-4" onSubmit={verifyAadhaarOtp} noValidate>
+            <FormField
+              label="OTP"
+              name="aadhaar-otp"
+              icon="bi-chat-dots"
+              value={aadhaarOtp}
+              onChange={(e) => setAadhaarOtp(e.target.value)}
+              error={aadhaarError}
+              placeholder="Enter OTP"
+              required
+            />
+            {aadhaarMessage && (
+              <p className="text-info small mb-2">
+                <i className="bi bi-info-circle me-1" />
+                {aadhaarMessage}
+              </p>
+            )}
+            <p className="text-muted-soft small mb-0">
+              Enter the OTP sent to your Aadhaar-linked mobile number.
+            </p>
+          </form>
+        )}
       </Modal>
     </div>
   );

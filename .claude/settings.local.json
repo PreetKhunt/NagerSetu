@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node scripts/check.mjs)",
+      "Bash(sed -i 's|initialEntries={\\\\[\"/citizen/dashboard\"\\\\]}|initialEntries={[PATHS.CITIZEN_DASHBOARD]}|g' scripts/smokeRoutes.jsx)",
+      "Bash(npm run *)",
+      "Bash(powershell -Command \"Stop-Process -Id 1432 -Force\")",
+      "Bash(netstat -ano)",
+      "Bash(dir /s /b src\\\\pages src\\\\components\\\\complaints)",
+      "Bash(findstr /i \"\\\\.jsx\")",
+      "Bash(npx oxlint *)",
+      "PowerShell(npm run *)",
+      "Bash(grep -v '^$')",
+      "Bash(grep -rhoE '`[a-z][a-z0-9_-]*\\(--\\)?\\\\$\\\\{[^`]*`|className=\\\\{`[^`]*`' src/components/officer src/pages/officer)",
+      "Bash(grep -rhoE 'className=\\\\{`[^`]*`' src/pages/officer/ComplaintDetail.jsx src/pages/officer/Map.jsx src/components/officer/BarList.jsx src/components/officer/TrendChart.jsx)",
+      "Bash(curl -s -o /dev/null -w \"root %{http_code}\\\\n\" http://localhost:5174/)",
+      "Bash(curl -s -o /dev/null -w \"officer/dashboard %{http_code}\\\\n\" http://localhost:5174/officer/dashboard)",
+      "Bash(curl -s -o /dev/null -w \"main.jsx %{http_code}\\\\n\" http://localhost:5174/src/main.jsx)"
+    ]
+  }
+}

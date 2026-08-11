@@ -8,11 +8,11 @@ import useAuth from "../../hooks/useAuth";
 import { PATHS, ROLE_HOME } from "../../utils/constants";
 
 const NAV_LINKS = [
-  { label: "Platform", href: "#workflow" },
-  { label: "Issues", href: "#issues" },
-  { label: "Features", href: "#features" },
-  { label: "How it works", href: "#how-it-works" },
-  { label: "Impact", href: "#impact" },
+  { label: "Platform", href: "/#workflow" },
+  { label: "Issues", href: "/#issues" },
+  { label: "Features", href: "/#features" },
+  { label: "How it works", href: "/#how-it-works" },
+  { label: "Impact", href: "/#benefits" },
 ];
 
 /** Public marketing navbar with a slide-in mobile drawer. */
@@ -23,7 +23,7 @@ export default function Navbar() {
   const location = useLocation();
 
   // Close the drawer whenever the route changes.
-  useEffect(() => setOpen(false), [location.pathname]);
+  useEffect(() => setOpen(false), [location.pathname, location.hash]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -53,9 +53,9 @@ export default function Navbar() {
 
           <nav className="navbar-ds__links" aria-label="Sections">
             {NAV_LINKS.map((link) => (
-              <a key={link.href} href={link.href} className="navbar-ds__link">
+              <Link key={link.href} to={link.href} className="navbar-ds__link">
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -124,15 +124,15 @@ export default function Navbar() {
 
         <nav className="drawer__links">
           {NAV_LINKS.map((link) => (
-            <a
+            <Link
               key={link.href}
-              href={link.href}
+              to={link.href}
               className="drawer__link"
               onClick={() => setOpen(false)}
               tabIndex={open ? 0 : -1}
             >
               {link.label}
-            </a>
+            </Link>
           ))}
           <Link
             to={PATHS.TRACK}

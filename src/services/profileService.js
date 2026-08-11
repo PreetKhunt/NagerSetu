@@ -26,6 +26,7 @@ export function readPreferences() {
 export async function savePreferences(prefs) {
   await delay();
   localStorage.setItem(STORAGE_KEYS.PREFS, JSON.stringify(prefs));
+  window.dispatchEvent(new Event("preferencesUpdated"));
   return { ...prefs };
 }
 
@@ -40,6 +41,15 @@ export async function changePassword({ current }) {
   await delay(900);
   if (!current) {
     throw { status: 400, message: "Enter your current password" };
+  }
+  return { ok: true };
+}
+
+/** TODO(api): POST /me/aadhaar/verify */
+export async function verifyAadhaar(aadhaarNumber, otp) {
+  await delay(1200);
+  if (otp !== "123456") {
+    throw new Error("Invalid OTP");
   }
   return { ok: true };
 }

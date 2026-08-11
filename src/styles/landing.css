@@ -10,7 +10,7 @@
   overflow: hidden;
   padding-top: clamp(2.5rem, 6vw, 5rem);
   padding-bottom: clamp(3rem, 7vw, 5.5rem);
-  background: linear-gradient(180deg, #fbfcff 0%, var(--c-bg) 62%);
+  background: linear-gradient(180deg, var(--c-surface) 0%, var(--c-bg) 62%);
   isolation: isolate;
 }
 .hero__glow-a {
@@ -187,7 +187,7 @@
   padding: var(--sp-4);
   border-radius: var(--r-md);
   border: 1px solid var(--c-primary-100);
-  background: linear-gradient(180deg, var(--c-primary-50), #fff);
+  background: linear-gradient(180deg, var(--c-primary-50), var(--c-surface));
 }
 .ai-readout__head {
   display: flex;
@@ -678,7 +678,7 @@
   font-weight: var(--fw-extrabold);
   line-height: 1.02;
   letter-spacing: -0.035em;
-  color: #fff;
+  color: var(--c-text-inverse);
   font-variant-numeric: tabular-nums;
 }
 .stat-metric__suffix {
@@ -721,11 +721,11 @@
   box-shadow: var(--sh-md);
 }
 .benefit-panel--citizen {
-  background: linear-gradient(170deg, var(--c-primary-50) 0%, #fff 46%);
+  background: linear-gradient(170deg, var(--c-primary-50) 0%, var(--c-surface) 46%);
   border-color: var(--c-primary-100);
 }
 .benefit-panel--gov {
-  background: linear-gradient(170deg, var(--c-secondary-50) 0%, #fff 46%);
+  background: linear-gradient(170deg, var(--c-secondary-50) 0%, var(--c-surface) 46%);
   border-color: var(--c-secondary-100);
 }
 .benefit-panel__head {

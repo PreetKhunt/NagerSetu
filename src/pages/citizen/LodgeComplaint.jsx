@@ -103,17 +103,18 @@ export default function LodgeComplaint() {
   const activeMode = INPUT_MODES.find((m) => m.id === mode);
 
   const readiness = useMemo(() => {
-    if (mode === "voice" && !transcript) {
-      return "Record your complaint to continue.";
-    }
-    if (mode === "image" && !imageFile) {
-      return "Add a photo to continue.";
-    }
-    if (!enoughText) {
-      return `Describe the issue in at least ${COMPLAINT_MIN_CHARS} characters.`;
+    if (mode === "text") {
+      if (!enoughText) return `Describe the issue in at least ${COMPLAINT_MIN_CHARS} characters.`;
+    } else if (mode === "voice") {
+      if (!transcript) return "Record your complaint to continue.";
+    } else if (mode === "image") {
+      if (!imageFile) return "Add a photo to continue.";
+      if (!vision) return "Wait for AI to analyze the photo.";
+      if (!vision.valid) return "Please provide a relevant image for this category.";
+      if (!enoughText) return `Describe the issue in at least ${COMPLAINT_MIN_CHARS} characters.`;
     }
     return null;
-  }, [mode, transcript, imageFile, enoughText]);
+  }, [mode, transcript, imageFile, enoughText, vision]);
 
   const runAnalysis = async () => {
     if (readiness) {
@@ -171,13 +172,24 @@ export default function LodgeComplaint() {
 
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      ({ coords: fix }) => {
+      async ({ coords: fix }) => {
         const point = { latitude: fix.latitude, longitude: fix.longitude };
-        const near = nearestLocation(point);
         setCoords(point);
-        setLocation(near ?? `Near ${fix.latitude.toFixed(4)}, ${fix.longitude.toFixed(4)}`);
-        setLocating(false);
-        toast.success("Location detected", near ?? "Coordinates captured");
+
+        try {
+          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${fix.latitude}&lon=${fix.longitude}`);
+          if (!response.ok) throw new Error('Network response was not ok');
+          const data = await response.json();
+          const address = data.display_name || `Near ${fix.latitude.toFixed(4)}, ${fix.longitude.toFixed(4)}`;
+          setLocation(address);
+          toast.success("Location detected", "Coordinates captured and mapped");
+        } catch (error) {
+          const near = nearestLocation(point);
+          setLocation(near ?? `Near ${fix.latitude.toFixed(4)}, ${fix.longitude.toFixed(4)}`);
+          toast.success("Location detected", near ?? "Coordinates captured");
+        } finally {
+          setLocating(false);
+        }
       },
       (err) => {
         setLocating(false);
@@ -275,6 +287,7 @@ export default function LodgeComplaint() {
               <div className="mb-4">
                 <ImageDropzone
                   disabled={submitting}
+                  selectedCategory={category}
                   onFileChange={(file, dataUrl) => {
                     setImageFile(file);
                     setImageData(dataUrl);
@@ -283,7 +296,7 @@ export default function LodgeComplaint() {
                   onAnalysis={(result) => {
                     setVision(result);
                     setAnalysis(null);
-                    if (result && !category) setCategory(result.category);
+                    if (result?.valid && !category) setCategory(result.category);
                   }}
                 />
               </div>
@@ -312,7 +325,7 @@ export default function LodgeComplaint() {
                 maxLength={COMPLAINT_MAX_CHARS}
                 error={errors.description}
                 hint={
-                  vision
+                  vision?.label
                     ? `Photo analysis suggests ${vision.label.toLowerCase()} — add anything the picture cannot show.`
                     : "Mention the nearest landmark and how long the problem has existed."
                 }
@@ -362,10 +375,26 @@ export default function LodgeComplaint() {
 
               <div className="lodge__actions">
                 <Button
-                  type="submit"
+                  type="button"
                   icon="bi-stars"
                   loading={analyzing}
                   disabled={Boolean(readiness) || submitting}
+                  onClick={(e) => {
+                    console.log("=== ANALYZE CLICK ===");
+                    console.log("mode:", mode);
+                    console.log("hasText:", trimmed.length > 0);
+                    console.log("hasVoice:", !!transcript);
+                    console.log("hasImage:", !!imageFile);
+                    console.log("descriptionLength:", trimmed.length);
+                    console.log("locationValid:", true);
+                    console.log("categoryValid:", true);
+                    console.log("modeInputValid:", !readiness);
+                    console.log("analysisAllowed:", !readiness && !submitting);
+                    if (readiness) {
+                       console.log("EXACT reason:", readiness);
+                    }
+                    runAnalysis();
+                  }}
                 >
                   {analysis ? "Re-run AI analysis" : "Analyze with AI"}
                 </Button>
@@ -374,7 +403,18 @@ export default function LodgeComplaint() {
                   variant="primary"
                   icon="bi-send"
                   disabled={!analysis || analyzing || submitting}
-                  onClick={() => setConfirmOpen(true)}
+                  onClick={() => {
+                    console.log("=== SUBMIT CLICK ===");
+                    console.log("mode:", mode);
+                    console.log("analysisCompleted:", !!analysis);
+                    console.log("isCivicIssue:", vision?.is_civic_issue ?? null);
+                    console.log("isRelevant:", vision?.is_relevant ?? null);
+                    console.log("submissionAllowed:", !!analysis && !analyzing && !submitting);
+                    if (!analysis) {
+                      console.log("submissionBlockReason:", "AI analysis not completed or cleared.");
+                    }
+                    setConfirmOpen(true);
+                  }}
                 >
                   Submit complaint
                 </Button>
