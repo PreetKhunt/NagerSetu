@@ -165,15 +165,7 @@ export default function Register() {
           </Button>
         </form>
 
-        <div className="demo-note">
-          <i className="bi bi-info-circle" aria-hidden="true" />
-          <span>
-            <strong>Prototype build</strong>
-            Nothing is stored on a server yet. Submitting this form signs you
-            into the {role === ROLES.OFFICER ? "officer" : "citizen"} dashboard
-            with a demo profile.
-          </span>
-        </div>
+
       </div>
 
       <p className="auth__foot">

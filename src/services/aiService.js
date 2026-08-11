@@ -171,8 +171,15 @@ export function findRelated(complaint, candidates = [], { limit = 3 } = {}) {
 }
 
 /** Mock object detection for an uploaded photo. */
-export async function analyzeImage({ attempt = 0 } = {}) {
+export async function analyzeImage({ file, attempt = 0 } = {}) {
   await delay(1700);
+
+  if (file && file.name) {
+    const name = file.name.toLowerCase();
+    if (name.includes("movie") || name.includes("poster") || name.includes("irrelevant") || name.includes("entertainment")) {
+      return { isIrrelevant: true };
+    }
+  }
 
   const result = VISION_RESULTS[attempt % VISION_RESULTS.length];
   return {

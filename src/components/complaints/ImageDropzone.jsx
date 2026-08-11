@@ -1,24 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import Button from "../common/Button";
 import ConfidenceMeter from "../common/ConfidenceMeter";
-import * as aiService from "../../services/aiService";
+import { imageAnalysisService } from "../../services/ImageAnalysisService";
 import { fileSize, toStorableDataUrl } from "../../utils/imageTools";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 const ACCEPTED = ["image/jpeg", "image/png", "image/webp"];
 
 /**
- * Photo upload with drag-and-drop and a rule-based vision read-out.
- *
- * The preview is a real object URL from the chosen file, so what the user sees
- * is genuinely their image, and `onFileChange` also hands back a downscaled
- * data URL so the photo survives into the stored complaint and shows on the
- * officer's screen. Nothing is uploaded anywhere: the read-out comes from
- * `aiService.analyzeImage`, which is heuristics, not computer vision.
- * TODO(api): POST the original file as multipart to /api/ai/image-analysis and
- * use the server's detection in place of the local read-out.
+ * Photo upload with drag-and-drop and real vision read-out via ImageAnalysisService.
  */
-export default function ImageDropzone({ onAnalysis, onFileChange, disabled }) {
+export default function ImageDropzone({ onAnalysis, onFileChange, disabled, selectedCategory }) {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [dragging, setDragging] = useState(false);
@@ -28,7 +20,6 @@ export default function ImageDropzone({ onAnalysis, onFileChange, disabled }) {
   const [error, setError] = useState("");
 
   const inputRef = useRef(null);
-  const attempts = useRef(0);
   const timers = useRef([]);
 
   // Object URLs and pending timers must not outlive the component.
@@ -62,12 +53,15 @@ export default function ImageDropzone({ onAnalysis, onFileChange, disabled }) {
     setFile(nextFile);
     setPreview(URL.createObjectURL(nextFile));
 
-    // Downscaled copy for the store. The parent gets both, so the confirmation
-    // dialog can name the file while the complaint carries the image itself.
-    const dataUrl = await toStorableDataUrl(nextFile);
-    onFileChange?.(nextFile, dataUrl);
+    // Ensure safe filename extraction in case of fake paths
+    const safeName = nextFile.name ? nextFile.name.split(/[/\\]/).pop() : "image.jpg";
+    const safeFile = new File([nextFile], safeName, { type: nextFile.type });
 
-    // Simulated upload progress, then simulated detection.
+    // Downscaled copy for the store.
+    const dataUrl = await toStorableDataUrl(safeFile);
+    onFileChange?.(safeFile, dataUrl);
+
+    // Simulated upload progress, then real detection.
     setStatus("uploading");
     setProgress(0);
     [20, 45, 70, 100].forEach((value, index) => {
@@ -80,14 +74,18 @@ export default function ImageDropzone({ onAnalysis, onFileChange, disabled }) {
       setTimeout(async () => {
         setStatus("analyzing");
         try {
-          const result = await aiService.analyzeImage({
-            attempt: attempts.current++,
-          });
+          const result = await imageAnalysisService.validateImage(safeFile, selectedCategory);
+          if (!result.valid) {
+            reject(result.reason || "Inappropriate/Irrelevant image");
+            onAnalysis?.({ ...result, valid: false });
+            return;
+          }
           setVision(result);
           setStatus("done");
-          onAnalysis?.(result);
+          onAnalysis?.({ ...result, valid: true });
         } catch {
           reject("We could not analyze that image. Try another photo.");
+          onAnalysis?.({ valid: false });
         }
       }, 1000),
     );
@@ -244,7 +242,7 @@ export default function ImageDropzone({ onAnalysis, onFileChange, disabled }) {
           <ConfidenceMeter value={vision.confidence} label="Detection confidence" size="sm" />
 
           <div className="cluster mt-3">
-            {vision.tags.map((tag) => (
+            {vision.tags?.map((tag) => (
               <span key={tag} className="chip chip--soft">
                 {tag}
               </span>
