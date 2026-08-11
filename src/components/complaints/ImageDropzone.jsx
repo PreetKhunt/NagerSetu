@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Button from "../common/Button";
 import ConfidenceMeter from "../common/ConfidenceMeter";
-import { imageAnalysisService } from "../../services/ImageAnalysisService";
+import apiClient from "../../services/apiClient";
 import { fileSize, toStorableDataUrl } from "../../utils/imageTools";
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -74,17 +74,40 @@ export default function ImageDropzone({ onAnalysis, onFileChange, disabled, sele
       setTimeout(async () => {
         setStatus("analyzing");
         try {
-          const result = await imageAnalysisService.validateImage(safeFile, selectedCategory);
-          if (!result.valid) {
+          const base64Data = dataUrl.split(",")[1];
+          const response = await apiClient.post("/ai/analyze-image", {
+            image_data: base64Data,
+            mime_type: safeFile.type,
+            selected_category: selectedCategory || null,
+          });
+          const result = response.data;
+
+          if (!result.is_civic_issue || !result.is_relevant) {
             reject(result.reason || "Inappropriate/Irrelevant image");
             onAnalysis?.({ ...result, valid: false });
             return;
           }
-          setVision(result);
+
+          const formattedResult = {
+            valid: true,
+            relevant: true,
+            category: result.category,
+            detected_category: result.category,
+            label: result.category_label || result.category,
+            confidence: result.confidence,
+            severity: result.severity,
+            department: result.department,
+            reason: result.reason,
+            description: result.description,
+            tags: result.tags || [],
+          };
+
+          setVision(formattedResult);
           setStatus("done");
-          onAnalysis?.({ ...result, valid: true });
-        } catch {
-          reject("We could not analyze that image. Try another photo.");
+          onAnalysis?.(formattedResult);
+        } catch (err) {
+          console.error("Vision analysis API error:", err);
+          reject(err.message || "We could not analyze that image. Try another photo.");
           onAnalysis?.({ valid: false });
         }
       }, 1000),

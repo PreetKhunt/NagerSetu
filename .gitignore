@@ -17,6 +17,20 @@ dist-ssr
 .env.*
 !.env.example
 
+# Backend virtual env and backend env file
+# Ignore the backend virtual environment directory and backend .env
+/backend/.venv/
+/backend/.env
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Local agent/tool settings
+.claude/
+.codex/
+AI_CONTEXT.md
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

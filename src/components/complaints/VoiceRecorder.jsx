@@ -196,15 +196,17 @@ export default function VoiceRecorder({ onTranscript, transcript, disabled }) {
       )}
 
       {error && (
-        <p className="field__error" role="alert">
-          <i className="bi bi-exclamation-circle" aria-hidden="true" />
-          {error}
-          {supported && (
-            <Button variant="ghost" size="sm" onClick={begin} className="ms-2">
-              Retry
-            </Button>
-          )}
-        </p>
+        <div className="voice__error-box">
+          <p className="field__error mb-1" role="alert">
+            <i className="bi bi-exclamation-circle" aria-hidden="true" />
+            {error}
+            {supported && (
+              <Button variant="ghost" size="sm" onClick={begin} className="ms-2">
+                Retry
+              </Button>
+            )}
+          </p>
+        </div>
       )}
 
       {notice && !error && (
