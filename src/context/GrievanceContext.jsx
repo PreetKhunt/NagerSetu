@@ -2,10 +2,14 @@ import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import { GrievanceContext } from "./contexts";
 import { ACTIONS, reducer } from "./grievanceReducer";
 import {
+  assignOfficerApi,
   buildComplaint,
   clearState,
+  createComplaintApi,
+  fetchComplaintsFromApi,
   loadState,
   persistState,
+  updateStatusApi,
 } from "../services/grievanceService";
 import { COMPLAINT_STATUS } from "../utils/constants";
 
@@ -39,20 +43,34 @@ export function GrievanceProvider({ children }) {
     persistState(state);
   }, [state]);
 
-  const createComplaint = useCallback((draft, citizen) => {
-    // Built here rather than in the reducer so the caller gets the id back
-    // synchronously for the success screen and the redirect.
-    const complaint = buildComplaint(draft, stateRef.current.complaints, citizen);
+  // Sync live database complaints on mount
+  useEffect(() => {
+    async function syncBackendData() {
+      const apiComplaints = await fetchComplaintsFromApi();
+      if (apiComplaints && apiComplaints.length > 0) {
+        dispatch({ type: ACTIONS.SET_COMPLAINTS, complaints: apiComplaints });
+      }
+    }
+    syncBackendData();
+  }, []);
+
+  const createComplaint = useCallback(async (draft, citizen) => {
+    // Attempt API creation on FastAPI & Supabase PostgreSQL first
+    const apiRecord = await createComplaintApi(draft, citizen);
+    const complaint = apiRecord || buildComplaint(draft, stateRef.current.complaints, citizen);
+
     dispatch({ type: ACTIONS.CREATE, complaint });
     return complaint;
   }, []);
 
   const updateStatus = useCallback((id, change) => {
     dispatch({ type: ACTIONS.STATUS, id, change });
+    updateStatusApi(id, change);
   }, []);
 
   const assignOfficer = useCallback((id, officer, actor) => {
     dispatch({ type: ACTIONS.ASSIGN, id, officer, actor });
+    assignOfficerApi(id, officer, actor);
   }, []);
 
   const markNotificationRead = useCallback((id) => {

@@ -18,6 +18,7 @@
  * during a session never touch storage — this is the boundary, not a cache.
  */
 
+import apiClient from "./apiClient";
 import { CITIZEN_COMPLAINTS, NOTIFICATIONS } from "../utils/mockData";
 import {
   COMPLAINT_STATUS,
@@ -32,6 +33,154 @@ import {
   normalizeComplaint,
   timelineEntry,
 } from "../utils/grievanceUtils";
+
+/**
+ * Fetch complaints from FastAPI backend.
+ */
+export async function fetchComplaintsFromApi() {
+  try {
+    const res = await apiClient.get("/complaints", { params: { limit: 100 } });
+    if (res.data?.items && Array.isArray(res.data.items)) {
+      return res.data.items.map((c) =>
+        normalizeComplaint({
+          id: c.id,
+          userId: c.user_id,
+          citizenName: c.citizen_name,
+          title: c.title,
+          description: c.description,
+          category: c.category,
+          categoryLabel: c.category_label,
+          department: c.department,
+          priority: c.priority,
+          status: c.status,
+          location: c.location,
+          coords:
+            c.latitude && c.longitude
+              ? { latitude: c.latitude, longitude: c.longitude }
+              : null,
+          image: c.image_url,
+          isVoice: c.is_voice,
+          voiceTranscript: c.voice_transcript,
+          aiConfidence: c.ai_confidence,
+          resolutionNote: c.resolution_note,
+          resolutionImage: c.resolution_image_url,
+          assignedOfficer: c.assigned_officer ? { name: c.assigned_officer } : null,
+          createdAt: c.created_at,
+          updatedAt: c.updated_at,
+        })
+      );
+    }
+  } catch (err) {
+    console.warn("Backend API offline or unreachable, using local state:", err.message);
+  }
+  return null;
+}
+
+/**
+ * Send create complaint payload to FastAPI backend.
+ */
+export async function createComplaintApi(draft, citizen) {
+  const analysis = draft.analysis ?? {};
+
+  const cleanDescription = String(draft.description || "").trim();
+  const derivedTitle = (
+    draft.title ||
+    analysis.issue ||
+    (cleanDescription.length > 0
+      ? cleanDescription.length > 50
+        ? cleanDescription.substring(0, 47) + "..."
+        : cleanDescription
+      : "Civic issue reported")
+  ).trim();
+  const cleanTitle = derivedTitle.length > 0 ? derivedTitle : "Civic issue reported";
+  const cleanLocation = String(draft.location || analysis.location || "Location not specified").trim();
+  const cleanPriority = String(analysis.priority || "medium").toLowerCase();
+
+  const payload = {
+    user_id: citizen?.id ?? "usr_10241",
+    citizen_name: citizen?.name ?? "Ashok Kumar",
+    title: cleanTitle.length > 0 ? cleanTitle : "Civic issue reported",
+    description: cleanDescription.length > 0 ? cleanDescription : "No detailed description provided.",
+    category: String(analysis.category || "infrastructure").toLowerCase(),
+    category_label: analysis.categoryLabel ?? null,
+    department: String(analysis.department || "Urban Development"),
+    priority: ["low", "medium", "high", "critical"].includes(cleanPriority) ? cleanPriority : "medium",
+    location: cleanLocation.length > 0 ? cleanLocation : "Location not specified",
+    latitude: draft.coords?.latitude ?? null,
+    longitude: draft.coords?.longitude ?? null,
+    image_url: draft.image ?? null,
+    is_voice: draft.mode === "voice",
+    voice_transcript: draft.voiceTranscript ?? null,
+    ai_confidence: analysis.confidence ?? 0.8,
+  };
+
+  try {
+    const res = await apiClient.post("/complaints", payload);
+    if (res.data) {
+      return normalizeComplaint({
+        id: res.data.id,
+        userId: res.data.user_id,
+        citizenName: res.data.citizen_name,
+        title: res.data.title,
+        description: res.data.description,
+        category: res.data.category,
+        categoryLabel: res.data.category_label,
+        department: res.data.department,
+        priority: res.data.priority,
+        status: res.data.status,
+        location: res.data.location,
+        createdAt: res.data.created_at,
+        updatedAt: res.data.updated_at,
+        image: res.data.image_url,
+        isVoice: res.data.is_voice,
+        voiceTranscript: res.data.voice_transcript,
+        aiAnalysis: {
+          category: res.data.category,
+          categoryLabel: res.data.category_label,
+          confidence: Math.round((res.data.ai_confidence ?? 0.8) * 100),
+          suggestedDepartment: res.data.department,
+          suggestedPriority: res.data.priority,
+          duplicateCount: 0,
+        },
+      });
+    }
+  } catch (err) {
+    console.error("Failed to save complaint on backend API:", err);
+  }
+  return null;
+}
+
+/**
+ * Update complaint status on FastAPI backend.
+ */
+export async function updateStatusApi(id, change) {
+  try {
+    await apiClient.patch(`/complaints/${id}/status`, {
+      status: change.status,
+      note: change.note,
+      actor: change.actor,
+      resolution_note: change.resolution,
+      resolution_image_url: change.resolutionImage,
+    });
+  } catch (err) {
+    console.warn(`Failed to update status for ${id} on API:`, err.message);
+  }
+}
+
+/**
+ * Assign complaint to officer on FastAPI backend.
+ */
+export async function assignOfficerApi(id, officer, actor) {
+  try {
+    await apiClient.patch(`/complaints/${id}/assign`, {
+      officer_name: officer?.name ?? String(officer),
+      actor: actor ?? "Officer",
+    });
+  } catch (err) {
+    console.warn(`Failed to assign officer for ${id} on API:`, err.message);
+  }
+}
+
 
 /** Seed notifications need an audience; older records predate the field. */
 const seedNotifications = () =>
@@ -133,6 +282,7 @@ export function clearState() {
  * counter that would reset on reload and start colliding.
  */
 export function buildComplaint(draft, existing = [], citizen = {}) {
+  const c = citizen || {};
   const now = new Date().toISOString();
   const analysis = draft.analysis ?? {};
   const id = nextComplaintId(existing);
@@ -140,9 +290,9 @@ export function buildComplaint(draft, existing = [], citizen = {}) {
 
   return normalizeComplaint({
     id,
-    userId: citizen.id ?? "usr_10241",
-    citizenName: citizen.name ?? "Ashok Kumar",
-    title: draft.title || analysis.issue || "Civic issue reported",
+    userId: c.id ?? "usr_10241",
+    citizenName: c.name ?? "Ashok Kumar",
+    title: draft.title || analysis.issue || (draft.description && draft.description.length > 50 ? draft.description.substring(0, 47) + "..." : draft.description) || "Civic issue reported",
     description: draft.description ?? "",
     category: analysis.category ?? "infrastructure",
     categoryLabel: analysis.categoryLabel,
@@ -179,7 +329,7 @@ export function buildComplaint(draft, existing = [], citizen = {}) {
         note: draft.mode === "voice"
           ? "Voice complaint transcribed and classified"
           : "Complaint received and classified by AI",
-        actor: citizen.name ?? "Citizen",
+        actor: c.name ?? "Citizen",
       }),
     ],
   });

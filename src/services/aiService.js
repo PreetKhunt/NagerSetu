@@ -71,12 +71,37 @@ function guessLocation(text) {
   return near ? near[1].trim() : null;
 }
 
+import apiClient from "./apiClient";
+
 /**
  * Classify a written complaint.
- * Returns category, issue, priority, department, confidence and a summary.
+ * Calls FastAPI backend AI endpoint POST /ai/analyze-text with client fallback.
  */
 export async function analyzeText(text, { location } = {}) {
-  await delay(1500);
+  try {
+    const res = await apiClient.post("/ai/analyze-text", { text: String(text), location });
+    if (res.data) {
+      const data = res.data;
+      return {
+        category: data.category,
+        categoryLabel: data.category_label,
+        issue: data.issue,
+        priority: data.priority,
+        priorityRank: data.priority_rank,
+        department: data.department,
+        confidence: data.confidence,
+        language: data.language,
+        location: data.location || location || guessLocation(String(text)),
+        summary: data.summary,
+        escalated: data.escalated,
+        matchedKeywords: data.matched_keywords || [],
+      };
+    }
+  } catch (err) {
+    console.warn("AI Backend API offline, falling back to client-side rule classification:", err.message);
+  }
+
+  await delay(1000);
 
   const haystack = String(text).toLowerCase();
   const rule = AI_RULES.find((r) => r.match.some((k) => haystack.includes(k)));
@@ -85,7 +110,6 @@ export async function analyzeText(text, { location } = {}) {
   const urgent = AI_URGENCY_WORDS.some((w) => haystack.includes(w));
   const priority = urgent ? escalate(base.priority) : base.priority;
 
-  // Longer, more specific reports genuinely carry more signal.
   const lengthBonus = Math.min(String(text).trim().length / 4000, 0.04);
   const confidence = Math.min(base.confidence + lengthBonus, 0.99);
 

@@ -204,33 +204,36 @@ export default function LodgeComplaint() {
     );
   };
 
-  const submit = () => {
+  const submit = async () => {
     setSubmitting(true);
+    try {
+      const complaint = await createComplaint(
+        {
+          description: trimmed,
+          location,
+          coords,
+          mode,
+          analysis,
+          imageName: imageFile?.name ?? null,
+          image: imageData,
+          voiceTranscript: transcript?.transcript ?? null,
+          title: analysis?.issue,
+        },
+        user,
+      );
 
-    // Synchronous on purpose: the store is the source of truth and the record
-    // comes back immediately, so the success screen can name the real ID.
-    const complaint = createComplaint(
-      {
-        description: trimmed,
-        location,
-        coords,
-        mode,
-        analysis,
-        imageName: imageFile?.name ?? null,
-        image: imageData,
-        voiceTranscript: transcript?.transcript ?? null,
-        title: analysis?.issue,
-      },
-      user,
-    );
-
-    setConfirmOpen(false);
-    setSubmitting(false);
-    toast.success("Complaint registered", `Reference ${complaint.id}`);
-    navigate(PATHS.CITIZEN_SUCCESS, {
-      replace: true,
-      state: { complaintId: complaint.id },
-    });
+      setConfirmOpen(false);
+      toast.success("Complaint registered", `Reference ${complaint.id}`);
+      navigate(PATHS.CITIZEN_SUCCESS, {
+        replace: true,
+        state: { complaintId: complaint.id },
+      });
+    } catch (err) {
+      console.error("Submit error:", err);
+      toast.error("Submission failed", err?.message || String(err));
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -296,7 +299,10 @@ export default function LodgeComplaint() {
                   onAnalysis={(result) => {
                     setVision(result);
                     setAnalysis(null);
-                    if (result?.valid && !category) setCategory(result.category);
+                    if (result?.valid) {
+                      if (!category) setCategory(result.category);
+                      if (result.description) setDescription(result.description);
+                    }
                   }}
                 />
               </div>

@@ -19,6 +19,7 @@ import {
 import { NOTIFICATION_AUDIENCE, NOTIFICATION_TYPES } from "../utils/constants";
 
 export const ACTIONS = {
+  SET_COMPLAINTS: "set_complaints",
   CREATE: "create",
   STATUS: "status",
   ASSIGN: "assign",
@@ -30,28 +31,38 @@ export const ACTIONS = {
 
 export function reducer(state, action) {
   switch (action.type) {
+    case ACTIONS.SET_COMPLAINTS:
+      return {
+        ...state,
+        complaints: action.complaints,
+      };
+
     case ACTIONS.CREATE: {
+      const c = action.complaint || {};
+      const catLabel = c.categoryLabel || c.category || "Civic Issue";
+      const dept = c.department || "Municipal Department";
+
       const notification = buildNotification({
-        complaint: action.complaint,
+        complaint: c,
         type: NOTIFICATION_TYPES.INFO,
-        title: `Complaint ${action.complaint.id} registered successfully`,
-        message: `${action.complaint.title} was classified as ${action.complaint.categoryLabel} and routed to ${action.complaint.department}.`,
+        title: `Complaint ${c.id || ""} registered successfully`,
+        message: `${c.title || "Complaint"} was classified as ${catLabel} and routed to ${dept}.`,
       });
 
       // The officer desk needs its own copy: the citizen's notification is
       // addressed to the person who filed, not to whoever works the queue.
       const forOfficer = buildNotification({
-        complaint: action.complaint,
+        complaint: c,
         type: NOTIFICATION_TYPES.INFO,
-        title: `New complaint ${action.complaint.id}`,
-        message: `${action.complaint.categoryLabel} reported at ${action.complaint.location}.`,
+        title: `New complaint ${c.id || ""}`,
+        message: `${catLabel} reported at ${c.location || "specified area"}.`,
         audience: NOTIFICATION_AUDIENCE.OFFICER,
       });
 
       return {
         ...state,
-        complaints: [action.complaint, ...state.complaints],
-        notifications: [notification, forOfficer, ...state.notifications],
+        complaints: [c, ...(state?.complaints || [])],
+        notifications: [notification, forOfficer, ...(state?.notifications || [])],
       };
     }
 
