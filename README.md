@@ -6,7 +6,8 @@ NagarSetu is a full-stack, AI-powered civic grievance lodging and tracking syste
 
 ## 🔗 Live Deployments
 
-- **Frontend (Vercel)**: [https://nagar-setu-git-backend-fastapi-team-448.vercel.app](https://nagar-setu-git-backend-fastapi-team-448.vercel.app)
+- **Frontend (Production)**: [https://nagar-setu-rust.vercel.app](https://nagar-setu-rust.vercel.app)
+- **Frontend (Branch Preview)**: [https://nagar-setu-git-backend-fastapi-team-448.vercel.app](https://nagar-setu-git-backend-fastapi-team-448.vercel.app)
 - **Backend (Render)**: [https://nagarsetu-backend-c858.onrender.com](https://nagarsetu-backend-c858.onrender.com)
 - **API Swagger Documentation**: [https://nagarsetu-backend-c858.onrender.com/docs](https://nagarsetu-backend-c858.onrender.com/docs)
 
