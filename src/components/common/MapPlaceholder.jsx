@@ -25,31 +25,50 @@ export default function MapPlaceholder({ location, coords, height = 240, popupCo
   const [loading, setLoading] = useState(!coords && location);
 
   useEffect(() => {
-    if (coords) {
+    if (coords && !coords.approximate) {
       setFinalCoords(coords);
       setLoading(false);
       return;
     }
 
     if (location) {
-      // Try to geocode if no coords are provided
       setLoading(true);
-      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=1`)
-        .then(res => res.json())
-        .then(data => {
-          if (data && data.length > 0) {
-            setFinalCoords({ latitude: parseFloat(data[0].lat), longitude: parseFloat(data[0].lon) });
-          } else {
-            // Fallback to mock coords if real geocoding fails (so old demo data doesn't break)
-            if (LOCATION_COORDS[location]) {
-              setFinalCoords(LOCATION_COORDS[location]);
-            }
+
+      const searchNominatim = async (query) => {
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}&limit=1`
+          );
+          if (!res.ok) return null;
+          const data = await res.json();
+          return data && data.length > 0
+            ? { latitude: parseFloat(data[0].lat), longitude: parseFloat(data[0].lon) }
+            : null;
+        } catch {
+          return null;
+        }
+      };
+
+      (async () => {
+        let found = await searchNominatim(location);
+
+        if (!found && location.includes(",")) {
+          const parts = location.split(",").map((p) => p.trim()).filter(Boolean);
+          if (parts.length >= 3) {
+            found = await searchNominatim(parts.slice(-3).join(", "));
           }
-        })
-        .catch(() => {
-          if (LOCATION_COORDS[location]) setFinalCoords(LOCATION_COORDS[location]);
-        })
-        .finally(() => setLoading(false));
+          if (!found && parts.length >= 2) {
+            found = await searchNominatim(parts.slice(0, 2).join(", "));
+          }
+        }
+
+        if (found) {
+          setFinalCoords(found);
+        } else if (LOCATION_COORDS[location]) {
+          setFinalCoords(LOCATION_COORDS[location]);
+        }
+        setLoading(false);
+      })();
     }
   }, [coords, location]);
 

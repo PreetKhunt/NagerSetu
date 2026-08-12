@@ -229,14 +229,18 @@ export default function LodgeComplaint() {
         image: imageData,
         voiceTranscript: transcript?.transcript ?? null,
         title: analysis?.issue,
-        // Attach duplicate detection metadata to the complaint record.
+
+        // REQUIRED:
+        // preserve duplicate detection information
         duplicateResult: duplicateResult ?? null,
       },
       user,
     );
 
     setSubmitting(false);
+
     toast.success("Complaint registered", `Reference ${complaint.id}`);
+
     navigate(PATHS.CITIZEN_SUCCESS, {
       replace: true,
       state: { complaintId: complaint.id },
@@ -347,7 +351,9 @@ export default function LodgeComplaint() {
                     setAnalysis(null);
                     if (result?.valid) {
                       if (!category) setCategory(result.category);
-                      if (trimmed === "") {
+                      if (result?.description) {
+                        setDescription(result.description);
+                      } else if (trimmed === "") {
                         setDescription(generateDescriptionFromVision(result));
                       }
                     }

@@ -28,7 +28,7 @@ const MESSAGES = {
     "Microphone access was blocked. Allow it in your browser's site settings and try again.",
   "no-speech": "We did not hear anything. Try again and speak a little closer to the mic.",
   "audio-capture": "No microphone was found. Connect one and try again.",
-  network: "Speech recognition needs a network connection. Check your connection and retry.",
+  network: "Speech service blocked or disconnected. Please disable any AdBlocker/Brave Shield/VPN extensions blocking googleapis.com, or switch language to English/Hindi.",
   aborted: "Recording stopped before anything was captured.",
 };
 

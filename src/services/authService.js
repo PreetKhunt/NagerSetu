@@ -78,12 +78,12 @@ class DevelopmentAuthAdapter {
     // In dev mode, we ignore password checks and rely solely on the identifier existing.
     // We enforce role separation if necessary, but primarily we just return the user profile.
     return {
-      user: { ...user, role: user.role || role },
+      user: { ...user, role: role || user.role },
       token: `dev-token-${user.id}`,
     };
   }
 
-  async register({ name, identifier, location }) {
+  async register({ name, identifier, location, role }) {
     await delay(700);
     const users = this._getUsers();
     
@@ -97,7 +97,7 @@ class DevelopmentAuthAdapter {
       email: identifier,
       mobile: identifier?.includes("@") ? "" : identifier,
       location: location?.trim() || "",
-      role: ROLES.CITIZEN,
+      role: role || ROLES.CITIZEN,
       verified: false,
       joinedAt: new Date().toISOString(),
       // Add default preferences if needed
