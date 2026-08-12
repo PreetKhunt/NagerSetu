@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import Button from "../common/Button";
 import ConfidenceMeter from "../common/ConfidenceMeter";
-import apiClient from "../../services/apiClient";
+import { imageAnalysisService } from "../../services/ImageAnalysisService";
 import { fileSize, toStorableDataUrl } from "../../utils/imageTools";
 
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -74,15 +74,9 @@ export default function ImageDropzone({ onAnalysis, onFileChange, disabled, sele
       setTimeout(async () => {
         setStatus("analyzing");
         try {
-          const base64Data = dataUrl.split(",")[1];
-          const response = await apiClient.post("/ai/analyze-image", {
-            image_data: base64Data,
-            mime_type: safeFile.type,
-            selected_category: selectedCategory || null,
-          });
-          const result = response.data;
+          const result = await imageAnalysisService.validateImage(safeFile, selectedCategory);
 
-          if (!result.is_civic_issue || !result.is_relevant) {
+          if (!result.valid) {
             reject(result.reason || "Inappropriate/Irrelevant image");
             onAnalysis?.({ ...result, valid: false });
             return;
@@ -93,7 +87,7 @@ export default function ImageDropzone({ onAnalysis, onFileChange, disabled, sele
             relevant: true,
             category: result.category,
             detected_category: result.category,
-            label: result.category_label || result.category,
+            label: result.label || result.category,
             confidence: result.confidence,
             severity: result.severity,
             department: result.department,
