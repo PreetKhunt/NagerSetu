@@ -17,7 +17,7 @@ import { SLA_META, officerComplaintPath } from "../../utils/constants";
  * complaint's priority window, so a row turns red by the clock passing, not by
  * anything stored on the record.
  */
-export default function OfficerComplaintTable({ complaints }) {
+export default function OfficerComplaintTable({ complaints, clusterMapping = new Map() }) {
   return (
     <>
       <div className="table-ds__wrap table-ds__wrap--officer">
@@ -60,7 +60,15 @@ export default function OfficerComplaintTable({ complaints }) {
                   </td>
                   <td>
                     <span className="table-ds__title">{complaint.title}</span>
-                    <span className="table-ds__sub">{complaint.citizenName}</span>
+                    <span className="table-ds__sub">
+                      {complaint.citizenName}
+                      {clusterMapping.has(complaint.id) && (
+                        <span className="badge bg-warning text-dark ms-2" title="AI detected problem cluster">
+                          <i className="bi bi-diagram-3-fill me-1"></i>
+                          {clusterMapping.get(complaint.id).clusterId} &middot; {clusterMapping.get(complaint.id).count} reports
+                        </span>
+                      )}
+                    </span>
                   </td>
                   <td>{complaint.categoryLabel}</td>
                   <td>
@@ -117,7 +125,15 @@ export default function OfficerComplaintTable({ complaints }) {
                 to={officerComplaintPath(complaint.id)}
               >
                 <div className="queue-card__top">
-                  <span className="mono queue-card__id">{complaint.id}</span>
+                  <span className="mono queue-card__id">
+                    {complaint.id}
+                    {clusterMapping.has(complaint.id) && (
+                      <span className="badge bg-warning text-dark ms-2 px-2 py-1 fs-10" title="AI detected problem cluster">
+                        <i className="bi bi-diagram-3-fill me-1"></i>
+                        {clusterMapping.get(complaint.id).clusterId} &middot; {clusterMapping.get(complaint.id).count} reports
+                      </span>
+                    )}
+                  </span>
                   <StatusBadge status={complaint.status} size="sm" />
                 </div>
 

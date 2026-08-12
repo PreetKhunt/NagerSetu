@@ -17,8 +17,10 @@ import useDocumentTitle from "../../hooks/useDocumentTitle";
 import {
   categoryBreakdown,
   computeStats,
+  countBy,
   departmentWorkload,
 } from "../../utils/grievanceUtils";
+import { computeProblemClusters } from "../../services/DuplicateDetectionService";
 import { timeAgo } from "../../utils/formatters";
 import { PATHS, officerComplaintPath } from "../../utils/constants";
 
@@ -40,6 +42,19 @@ export default function OfficerDashboard() {
   const categories = useMemo(() => categoryBreakdown(complaints), [complaints]);
   const departments = useMemo(() => departmentWorkload(complaints), [complaints]);
 
+  // AI Problem Detection — derived entirely from the live complaint list.
+  const clusterStats = useMemo(() => {
+    const clusters = computeProblemClusters(complaints);
+    const topIssue = countBy(complaints, "categoryLabel")[0]?.value ?? null;
+    return {
+      possibleRelatedGroups: clusters.length,
+      activeClusters: clusters.filter((c) =>
+        c.members.some((m) => !["resolved", "rejected"].includes(m.status)),
+      ).length,
+      mostReportedIssue: topIssue,
+    };
+  }, [complaints]);
+
   // Newest first — the queue an officer works from is chronological, not
   // whatever order the store happens to hold.
   const recent = useMemo(
@@ -53,6 +68,7 @@ export default function OfficerDashboard() {
   const share = (n) => (stats.total ? (n / stats.total) * 100 : 0);
 
   const tiles = [
+
     {
       label: "Total complaints",
       value: stats.total,
@@ -62,20 +78,12 @@ export default function OfficerDashboard() {
       progress: 100,
     },
     {
-      label: "Pending",
-      value: stats.pending,
+      label: "Pending / Open",
+      value: stats.pending + stats.assigned,
       icon: "bi-hourglass-split",
       tone: "amber",
-      hint: "Awaiting assignment",
-      progress: share(stats.pending),
-    },
-    {
-      label: "Assigned",
-      value: stats.assigned,
-      icon: "bi-person-check",
-      tone: "teal",
-      hint: "With an officer, not yet started",
-      progress: share(stats.assigned),
+      hint: "Awaiting start",
+      progress: share(stats.pending + stats.assigned),
     },
     {
       label: "In progress",
@@ -96,31 +104,13 @@ export default function OfficerDashboard() {
           : `${stats.resolutionRate}% closure rate`,
       progress: share(stats.resolved),
     },
-    {
-      label: "Rejected",
-      value: stats.rejected,
-      icon: "bi-x-circle",
-      tone: "slate",
-      hint: "Closed after review",
-      progress: share(stats.rejected),
-    },
-    {
-      label: "High priority",
-      value: stats.highPriority,
-      icon: "bi-exclamation-triangle",
-      tone: "danger",
-      hint: "High and critical, all statuses",
-      progress: share(stats.highPriority),
-    },
-    {
-      label: "SLA breached",
-      value: stats.slaBreached,
-      icon: "bi-alarm",
-      tone: "danger",
-      hint: `${stats.slaDueSoon} due soon`,
-      progress: share(stats.slaBreached),
-    },
   ];
+
+  // Top Problem Cluster logic
+  const topCluster = useMemo(() => {
+    const clusters = computeProblemClusters(complaints);
+    return clusters.sort((a, b) => b.count - a.count)[0] || null;
+  }, [complaints]);
 
   return (
     <div className="stack-6">
@@ -162,9 +152,10 @@ export default function OfficerDashboard() {
         </div>
       </section>
 
-      <div className="row g-4">
+      {/* ROW 2: Recent Complaints & SLA Panel */}
+      <div className="row g-4 mb-4">
         <div className="col-12 col-xl-7">
-          <Card padding="lg">
+          <Card padding="lg" className="h-100">
             <CardHeader
               title="Recent complaints"
               subtitle="The six most recently filed reports"
@@ -202,7 +193,7 @@ export default function OfficerDashboard() {
                         <span className="queue__id mono">{complaint.id}</span>
                         <span className="queue__title">{complaint.title}</span>
                         <span className="queue__meta">
-                          <i className="bi bi-geo-alt" aria-hidden="true" />
+                          <i className="bi-geo-alt" aria-hidden="true" />
                           {complaint.location}
                           <span aria-hidden="true">·</span>
                           {timeAgo(complaint.createdAt)}
@@ -221,51 +212,137 @@ export default function OfficerDashboard() {
         </div>
 
         <div className="col-12 col-xl-5">
-          <div className="stack-4">
+          <div className="h-100">
             <SlaPanel complaints={complaints} />
-
-            <Card padding="lg">
-              <CardHeader
-                title="Complaints by category"
-                subtitle="Live counts across the whole queue"
-              />
-              <BarList
-                items={categories.map((c) => ({
-                  key: c.id,
-                  label: c.label,
-                  icon: c.icon,
-                  value: c.count,
-                }))}
-                emptyLabel="No complaints to break down yet."
-              />
-            </Card>
-
-            <Card padding="lg">
-              <CardHeader
-                title="Department workload"
-                subtitle="Open items per department"
-                action={
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    to={PATHS.OFFICER_DEPARTMENTS}
-                    iconRight="bi-arrow-right"
-                  >
-                    Details
-                  </Button>
-                }
-              />
-              <BarList
-                items={departments.map((d) => ({
-                  key: d.name,
-                  label: d.name,
-                  value: d.total,
-                  hint: `${d.pending + d.assigned + d.inProgress} open`,
-                }))}
-                emptyLabel="No departments have work assigned yet."
-              />
-            </Card>
           </div>
+        </div>
+      </div>
+
+      {/* ROW 3: Categories & Departments */}
+      <div className="row g-4 mb-4">
+        <div className="col-12 col-xl-6">
+          <Card padding="lg" className="h-100">
+            <CardHeader
+              title="Complaints by category"
+              subtitle="Live counts across the whole queue"
+            />
+            <BarList
+              items={categories.map((c) => ({
+                key: c.id,
+                label: c.label,
+                icon: c.icon,
+                value: c.count,
+              }))}
+              emptyLabel="No complaints to break down yet."
+            />
+          </Card>
+        </div>
+
+        <div className="col-12 col-xl-6">
+          <Card padding="lg" className="h-100">
+            <CardHeader
+              title="Department workload"
+              subtitle="Open items per department"
+              action={
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  to={PATHS.OFFICER_DEPARTMENTS}
+                  iconRight="bi-arrow-right"
+                >
+                  Details
+                </Button>
+              }
+            />
+            <BarList
+              items={departments.map((d) => ({
+                key: d.name,
+                label: d.name,
+                value: d.total,
+                hint: `${d.pending + d.assigned + d.inProgress} open`,
+              }))}
+              emptyLabel="No departments have work assigned yet."
+            />
+          </Card>
+        </div>
+      </div>
+
+      {/* ROW 4: AI Problem Detection */}
+      <div className="row g-4">
+        <div className="col-12">
+          <Card padding="lg">
+            <CardHeader
+              title="AI Problem Detection"
+              subtitle="Possible duplicate clusters across the queue"
+            />
+            
+            <div className="row g-4">
+              <div className="col-12 col-xl-4">
+                <ul className="ai-detect__list h-100 p-3 rounded" style={{ backgroundColor: 'var(--c-surface-sunken)', border: '1px solid var(--c-border)' }}>
+                  <li className="ai-detect__row">
+                    <span className="ai-detect__label">
+                      <i className="bi bi-diagram-3" aria-hidden="true" />
+                      Possible related groups
+                    </span>
+                    <span className="ai-detect__value">
+                      {clusterStats.possibleRelatedGroups}
+                    </span>
+                  </li>
+                  <li className="ai-detect__row">
+                    <span className="ai-detect__label">
+                      <i className="bi bi-collection" aria-hidden="true" />
+                      Active problem clusters
+                    </span>
+                    <span className="ai-detect__value">
+                      {clusterStats.activeClusters}
+                    </span>
+                  </li>
+                  <li className="ai-detect__row">
+                    <span className="ai-detect__label">
+                      <i className="bi bi-bar-chart" aria-hidden="true" />
+                      Most reported issue
+                    </span>
+                    <span className="ai-detect__value ai-detect__value--label text-truncate" style={{maxWidth: '120px'}}>
+                      {clusterStats.mostReportedIssue ?? "—"}
+                    </span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="col-12 col-xl-8">
+                {topCluster ? (
+                  <div className="p-4 rounded border h-100 d-flex flex-column" style={{ backgroundColor: 'var(--c-surface-sunken)', borderColor: 'var(--c-border) !important' }}>
+                    <div className="d-flex justify-content-between align-items-start mb-3">
+                      <div>
+                        <div className="text-muted small fw-bold mb-1">TOP ACTIVE PROBLEM</div>
+                        <div className="fs-5 fw-bold mono">{topCluster.clusterId}</div>
+                      </div>
+                      <Button to={`/officer/cluster/${topCluster.clusterId}`} variant="primary" size="sm">
+                        View Problem Cluster
+                      </Button>
+                    </div>
+
+                    <div className="mb-3">
+                      <div className="fs-6 fw-bold">{topCluster.categoryLabel}</div>
+                      <div className="text-muted"><i className="bi bi-geo-alt me-1" />{topCluster.location}</div>
+                    </div>
+
+                    <div className="d-flex align-items-center gap-3 mt-auto flex-wrap">
+                      <span className="badge bg-warning text-dark fs-6 py-2 px-3">
+                        🔥 {topCluster.count} Citizen Reports
+                      </span>
+                      <PriorityBadge priority={topCluster.priority} />
+                      <StatusBadge status={topCluster.members.some(m => m.status === 'in_progress') ? 'in_progress' : topCluster.members[0].status} />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 rounded border h-100 d-flex align-items-center justify-content-center text-muted" style={{ backgroundColor: 'var(--c-surface-sunken)' }}>
+                    No active problem clusters detected.
+                  </div>
+                )}
+              </div>
+            </div>
+          </Card>
         </div>
       </div>
     </div>

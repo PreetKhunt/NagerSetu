@@ -12,12 +12,15 @@ import TextareaField from "../../components/common/TextareaField";
 import AIAnalysisPanel from "../../components/complaints/AIAnalysisPanel";
 import VoiceRecorder from "../../components/complaints/VoiceRecorder";
 import ImageDropzone from "../../components/complaints/ImageDropzone";
+import DuplicateWarningModal from "../../components/complaints/DuplicateWarningModal";
 
 import useToast from "../../hooks/useToast";
 import useAuth from "../../hooks/useAuth";
 import useGrievances from "../../hooks/useGrievances";
 import useDocumentTitle from "../../hooks/useDocumentTitle";
 import * as aiService from "../../services/aiService";
+import { findRelatedComplaints } from "../../services/DuplicateDetectionService";
+import { generateDescriptionFromVision } from "../../utils/descriptionGenerator";
 import { SAVED_LOCATIONS } from "../../utils/mockData";
 import { nearestLocation } from "../../utils/grievanceUtils";
 import {
@@ -55,7 +58,7 @@ export default function LodgeComplaint() {
   const navigate = useNavigate();
   const toast = useToast();
   const { user } = useAuth();
-  const { createComplaint } = useGrievances();
+  const { createComplaint, complaints } = useGrievances();
   const [searchParams, setSearchParams] = useSearchParams();
 
   const requestedMode = searchParams.get("mode");
@@ -78,6 +81,11 @@ export default function LodgeComplaint() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [locating, setLocating] = useState(false);
+
+  // Duplicate detection state
+  const [duplicateResult, setDuplicateResult] = useState(null);
+  const [duplicateOpen, setDuplicateOpen] = useState(false);
+  const [checkingDuplicates, setCheckingDuplicates] = useState(false);
 
   const panelRef = useRef(null);
 
@@ -204,11 +212,12 @@ export default function LodgeComplaint() {
     );
   };
 
-  const submit = () => {
+  /** Perform the actual complaint creation (shared by both paths). */
+  const doSubmit = () => {
     setSubmitting(true);
+    setDuplicateOpen(false);
+    setConfirmOpen(false);
 
-    // Synchronous on purpose: the store is the source of truth and the record
-    // comes back immediately, so the success screen can name the real ID.
     const complaint = createComplaint(
       {
         description: trimmed,
@@ -220,11 +229,12 @@ export default function LodgeComplaint() {
         image: imageData,
         voiceTranscript: transcript?.transcript ?? null,
         title: analysis?.issue,
+        // Attach duplicate detection metadata to the complaint record.
+        duplicateResult: duplicateResult ?? null,
       },
       user,
     );
 
-    setConfirmOpen(false);
     setSubmitting(false);
     toast.success("Complaint registered", `Reference ${complaint.id}`);
     navigate(PATHS.CITIZEN_SUCCESS, {
@@ -232,6 +242,45 @@ export default function LodgeComplaint() {
       state: { complaintId: complaint.id },
     });
   };
+
+  /**
+   * Pre-submission gate: run duplicate detection, then either
+   * show the warning modal or proceed straight to the confirm dialog.
+   */
+  const handleSubmitClick = async () => {
+    // Build a draft complaint shaped like a real record so the detector
+    // can compare it against existing complaints.
+    const draft = {
+      id: "__draft__",
+      title: analysis?.issue ?? trimmed.slice(0, 80),
+      description: trimmed,
+      category: analysis?.category ?? category ?? "infrastructure",
+      categoryLabel: analysis?.categoryLabel ?? "",
+      issueType: analysis?.issue ?? "",
+      location: location || analysis?.location || "",
+      coords: coords ?? null,
+      createdAt: new Date().toISOString(),
+      priority: analysis?.priority ?? "medium",
+    };
+
+    setCheckingDuplicates(true);
+    try {
+      // Runs synchronously in the browser — no network call.
+      const result = findRelatedComplaints(draft, complaints);
+      setDuplicateResult(result);
+
+      if (result.hasPossibleDuplicate) {
+        setDuplicateOpen(true);
+      } else {
+        setConfirmOpen(true);
+      }
+    } finally {
+      setCheckingDuplicates(false);
+    }
+  };
+
+  /** Legacy alias kept so the confirm-modal button still works. */
+  const submit = doSubmit;
 
   return (
     <div className="stack-6">
@@ -296,7 +345,12 @@ export default function LodgeComplaint() {
                   onAnalysis={(result) => {
                     setVision(result);
                     setAnalysis(null);
-                    if (result?.valid && !category) setCategory(result.category);
+                    if (result?.valid) {
+                      if (!category) setCategory(result.category);
+                      if (trimmed === "") {
+                        setDescription(generateDescriptionFromVision(result));
+                      }
+                    }
                   }}
                 />
               </div>
@@ -326,7 +380,7 @@ export default function LodgeComplaint() {
                 error={errors.description}
                 hint={
                   vision?.label
-                    ? `Photo analysis suggests ${vision.label.toLowerCase()} — add anything the picture cannot show.`
+                    ? "AI-generated description — you can edit it before submitting."
                     : "Mention the nearest landmark and how long the problem has existed."
                 }
               />
@@ -402,7 +456,8 @@ export default function LodgeComplaint() {
                 <Button
                   variant="primary"
                   icon="bi-send"
-                  disabled={!analysis || analyzing || submitting}
+                  disabled={!analysis || analyzing || submitting || checkingDuplicates}
+                  loading={checkingDuplicates}
                   onClick={() => {
                     console.log("=== SUBMIT CLICK ===");
                     console.log("mode:", mode);
@@ -413,7 +468,7 @@ export default function LodgeComplaint() {
                     if (!analysis) {
                       console.log("submissionBlockReason:", "AI analysis not completed or cleared.");
                     }
-                    setConfirmOpen(true);
+                    handleSubmitClick();
                   }}
                 >
                   Submit complaint
@@ -559,6 +614,15 @@ export default function LodgeComplaint() {
           False or misleading complaints can be closed without action.
         </p>
       </Modal>
+
+      {/* ---------- Duplicate warning ---------- */}
+      <DuplicateWarningModal
+        open={duplicateOpen}
+        onClose={() => setDuplicateOpen(false)}
+        onSubmitAnyway={doSubmit}
+        matches={duplicateResult?.matches ?? []}
+        isStrong={duplicateResult?.isStrong ?? false}
+      />
     </div>
   );
 }

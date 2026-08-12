@@ -29,6 +29,7 @@ export const PATHS = {
   OFFICER_DEPARTMENTS: "/officer/departments",
   OFFICER_NOTIFICATIONS: "/officer/notifications",
   OFFICER_PROFILE: "/officer/profile",
+  OFFICER_CLUSTER: "/officer/cluster",
 };
 
 /** Detail route for one complaint. Keeps `:id` interpolation in one place. */
@@ -38,6 +39,10 @@ export const complaintPath = (id) =>
 /** Officer-side detail route for the same complaint record. */
 export const officerComplaintPath = (id) =>
   `${PATHS.OFFICER_COMPLAINTS}/${encodeURIComponent(id)}`;
+
+/** Officer-side route for a problem cluster. */
+export const officerClusterPath = (id) =>
+  `${PATHS.OFFICER_CLUSTER}/${encodeURIComponent(id)}`;
 
 /** Lodge-complaint deep link that preselects the voice tab. */
 export const VOICE_COMPLAINT_PATH = `${PATHS.CITIZEN_NEW}?mode=voice`;

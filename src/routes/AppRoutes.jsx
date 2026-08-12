@@ -21,6 +21,7 @@ import Profile from "../pages/citizen/Profile";
 import OfficerDashboard from "../pages/officer/Dashboard";
 import OfficerComplaints from "../pages/officer/Complaints";
 import OfficerComplaintDetail from "../pages/officer/ComplaintDetail";
+import ProblemClusterDetail from "../pages/officer/ProblemClusterDetail";
 import OfficerMap from "../pages/officer/Map";
 import OfficerAnalytics from "../pages/officer/Analytics";
 import OfficerDepartments from "../pages/officer/Departments";
@@ -90,6 +91,10 @@ export default function AppRoutes() {
           <Route
             path={`${PATHS.OFFICER_COMPLAINTS}/:id`}
             element={<OfficerComplaintDetail />}
+          />
+          <Route
+            path={`${PATHS.OFFICER_CLUSTER}/:id`}
+            element={<ProblemClusterDetail />}
           />
           <Route path={PATHS.OFFICER_MAP} element={<OfficerMap />} />
           <Route

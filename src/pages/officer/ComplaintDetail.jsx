@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import PageHeader from "../../components/common/PageHeader";
@@ -8,8 +8,9 @@ import EmptyState from "../../components/common/EmptyState";
 import StatusBadge from "../../components/common/StatusBadge";
 import PriorityBadge from "../../components/common/PriorityBadge";
 import ConfidenceMeter from "../../components/common/ConfidenceMeter";
-import ActivityTimeline from "../../components/complaints/ActivityTimeline";
 import ComplaintStatusTracker from "../../components/complaints/ComplaintStatusTracker";
+import ActivityTimeline from "../../components/complaints/ActivityTimeline";
+import ProblemClusterPanel from "../../components/complaints/ProblemClusterPanel";
 import StatusUpdateModal from "../../components/officer/StatusUpdateModal";
 import AssignOfficerModal from "../../components/officer/AssignOfficerModal";
 
@@ -20,6 +21,7 @@ import useGrievances from "../../hooks/useGrievances";
 import useDocumentTitle from "../../hooks/useDocumentTitle";
 import { formatDateTime, timeAgo } from "../../utils/formatters";
 import { formatRemaining } from "../../utils/grievanceUtils";
+import { findRelatedComplaints, DUPLICATE_THRESHOLD } from "../../services/DuplicateDetectionService";
 import {
   CLOSED_STATUSES,
   PATHS,
@@ -52,12 +54,21 @@ function Row({ icon, label, children }) {
 export default function OfficerComplaintDetail() {
   const { id } = useParams();
   const complaint = useComplaint(id);
-  const { updateStatus, assignOfficer } = useGrievances();
+  const { complaints, updateStatus, assignOfficer } = useGrievances();
   const { user } = useAuth();
   const toast = useToast();
 
   const [statusOpen, setStatusOpen] = useState(false);
   const [assignOpen, setAssignOpen] = useState(false);
+
+  // Duplicate detection state
+  const duplicateResult = useMemo(() => {
+    if (!complaint || !complaints?.length) return null;
+    return findRelatedComplaints(complaint, complaints, {
+      threshold: DUPLICATE_THRESHOLD,
+      limit: 50,
+    });
+  }, [complaint, complaints]);
 
   useDocumentTitle(complaint ? `${complaint.id} — review` : "Complaint");
 
@@ -391,26 +402,18 @@ export default function OfficerComplaintDetail() {
               </Card>
             )}
 
-            {complaint.related?.length > 0 && (
+            {duplicateResult?.hasPossibleDuplicate && (
               <Card padding="lg">
                 <CardHeader
                   title="Similar complaints"
-                  subtitle="Same category, nearby — check before dispatching a second crew"
+                  subtitle="AI detected potential related reports based on description and location"
                 />
-                <ul className="related-list">
-                  {complaint.related.map((item) => (
-                    <li key={item.id}>
-                      <Link
-                        className="related-list__row"
-                        to={`${PATHS.OFFICER_COMPLAINTS}/${encodeURIComponent(item.id)}`}
-                      >
-                        <span className="mono related-list__id">{item.id}</span>
-                        <span className="related-list__title">{item.title}</span>
-                        <StatusBadge status={item.status} size="sm" />
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <ProblemClusterPanel
+                  relatedMatches={duplicateResult.matches}
+                  currentId={complaint.id}
+                  isOfficer={true}
+                  clusterId={duplicateResult.clusterId}
+                />
               </Card>
             )}
           </div>

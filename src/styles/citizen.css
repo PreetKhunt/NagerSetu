@@ -2099,3 +2099,299 @@
     height: 92px;
   }
 }
+
+/* ==========================================================================
+   Duplicate Warning Modal
+   ========================================================================== */
+.dup-warn__header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-4);
+  padding-bottom: var(--sp-4);
+  border-bottom: 1px solid var(--c-border);
+  margin-bottom: var(--sp-4);
+}
+.dup-warn__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  min-width: 2.75rem;
+  border-radius: var(--r-full);
+  background: color-mix(in srgb, var(--c-warning) 15%, transparent);
+  color: var(--c-warning);
+  font-size: 1.25rem;
+}
+.dup-warn__icon--strong {
+  background: color-mix(in srgb, var(--c-danger) 15%, transparent);
+  color: var(--c-danger);
+}
+.dup-warn__title {
+  margin: 0 0 var(--sp-1) 0;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-semibold);
+  line-height: 1.2;
+}
+.dup-warn__heading--strong { color: var(--c-danger); }
+.dup-warn__heading--mild   { color: var(--c-warning); }
+.dup-warn__sub {
+  margin: 0;
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+}
+
+/* Match list */
+.dup-warn__list {
+  list-style: none;
+  margin: 0 0 var(--sp-4) 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.dup-warn__item {
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  padding: var(--sp-4);
+  background: var(--c-surface);
+  transition: border-color var(--dur) var(--ease-out),
+              box-shadow var(--dur) var(--ease-out);
+}
+.dup-warn__item:hover {
+  border-color: var(--c-border-strong);
+  box-shadow: var(--sh-sm);
+}
+.dup-warn__item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+.dup-warn__item-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.dup-warn__item-id {
+  font-size: var(--fs-sm);
+  color: var(--c-ink-500);
+}
+.dup-warn__similarity {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-primary-600);
+}
+.dup-warn__item-title {
+  margin: 0 0 var(--sp-2) 0;
+  font-size: var(--fs-base);
+  font-weight: var(--fw-medium);
+  color: var(--c-ink-900);
+}
+.dup-warn__item-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+}
+.dup-warn__item-loc,
+.dup-warn__item-time {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+.dup-warn__item-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin: var(--sp-2) 0 0 0;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--c-primary-500) 8%, transparent);
+  font-size: var(--fs-sm);
+  color: var(--c-ink-700);
+}
+.dup-warn__item-actions {
+  margin-top: var(--sp-3);
+  display: flex;
+  justify-content: flex-end;
+}
+.dup-warn__footer-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin: 0;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-md);
+  background: var(--c-bg-subtle);
+  font-size: var(--fs-sm);
+  color: var(--c-muted);
+  border: 1px solid var(--c-border);
+}
+
+/* ==========================================================================
+   Problem Cluster Panel  (complaint detail sidebar)
+   ========================================================================== */
+.cluster-panel__intro {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  padding-bottom: var(--sp-3);
+  border-bottom: 1px solid var(--c-border);
+  margin-bottom: var(--sp-3);
+}
+.cluster-panel__intro-icon {
+  font-size: 1.5rem;
+  color: var(--c-primary-500);
+  margin-top: 0.1rem;
+}
+.cluster-panel__count {
+  margin: 0 0 var(--sp-1) 0;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  color: var(--c-ink-800);
+}
+.cluster-panel__id {
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+
+.cluster-panel__list {
+  list-style: none;
+  margin: 0 0 var(--sp-3) 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+.cluster-panel__item { border-radius: var(--r-md); }
+.cluster-panel__link {
+  display: block;
+  padding: var(--sp-3);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color var(--dur) var(--ease-out),
+              box-shadow var(--dur) var(--ease-out),
+              background var(--dur) var(--ease-out);
+}
+.cluster-panel__link:hover {
+  border-color: var(--c-primary-300);
+  box-shadow: var(--sh-sm);
+  background: var(--c-primary-50);
+}
+.cluster-panel__item-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--sp-1);
+}
+.cluster-panel__item-id {
+  font-size: var(--fs-xs);
+  color: var(--c-ink-400);
+}
+.cluster-panel__score {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-semibold);
+  color: var(--c-primary-600);
+}
+.cluster-panel__item-title {
+  margin: 0 0 var(--sp-2) 0;
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--c-ink-800);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cluster-panel__item-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.cluster-panel__item-dist,
+.cluster-panel__item-time {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+.cluster-panel__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+  padding-top: var(--sp-2);
+  border-top: 1px solid var(--c-border);
+}
+
+/* ==========================================================================
+   AI Problem Detection — officer dashboard card
+   ========================================================================== */
+.ai-detect__list {
+  list-style: none;
+  margin: 0 0 var(--sp-3) 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ai-detect__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid var(--c-border);
+}
+.ai-detect__row:last-child { border-bottom: none; }
+.ai-detect__label {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  color: var(--c-ink-700);
+}
+.ai-detect__label .bi {
+  color: var(--c-primary-500);
+}
+.ai-detect__value {
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+  color: var(--c-ink-900);
+  font-variant-numeric: tabular-nums;
+}
+.ai-detect__value--label {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  text-align: right;
+}
+.ai-detect__note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  margin: 0;
+  font-size: var(--fs-xs);
+  color: var(--c-muted);
+}
+
+/* chip--xs size variant */
+.chip--xs {
+  font-size: var(--fs-xs) !important;
+  padding: 0.1rem 0.4rem !important;
+}
+

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import PageHeader from "../../components/common/PageHeader";
@@ -13,7 +13,7 @@ import MapPlaceholder from "../../components/common/MapPlaceholder";
 import ComplaintStatusTracker from "../../components/complaints/ComplaintStatusTracker";
 import ActivityTimeline from "../../components/complaints/ActivityTimeline";
 import OfficerCard from "../../components/complaints/OfficerCard";
-import RelatedComplaints from "../../components/complaints/RelatedComplaints";
+import ProblemClusterPanel from "../../components/complaints/ProblemClusterPanel";
 
 import useToast from "../../hooks/useToast";
 import useDocumentTitle from "../../hooks/useDocumentTitle";
@@ -21,6 +21,7 @@ import useComplaint from "../../hooks/useComplaint";
 import useGrievances from "../../hooks/useGrievances";
 import { COMPLAINT_STATUS, PATHS } from "../../utils/constants";
 import { formatDate, formatDateTime, timeAgo } from "../../utils/formatters";
+import { findRelatedComplaints } from "../../services/DuplicateDetectionService";
 import { LOCATION_COORDS } from "../../utils/mockData";
 
 /**
@@ -38,8 +39,14 @@ export default function ComplaintDetail() {
 
   const toast = useToast();
   const complaint = useComplaint(id);
-  const { updateStatus } = useGrievances();
+  const { updateStatus, complaints } = useGrievances();
   const [reopenOpen, setReopenOpen] = useState(false);
+
+  // Compute live duplicate matches for this complaint from the full store.
+  const duplicateResult = useMemo(() => {
+    if (!complaint) return null;
+    return findRelatedComplaints(complaint, complaints);
+  }, [complaint, complaints]);
 
   const reopen = () => {
     updateStatus(complaint.id, {
@@ -296,9 +303,13 @@ export default function ComplaintDetail() {
             <Card padding="lg">
               <CardHeader
                 title="Similar reports nearby"
-                subtitle="Flagged by AI as possible duplicates"
+                subtitle="AI-detected possible related complaints"
               />
-              <RelatedComplaints items={complaint.related} />
+              <ProblemClusterPanel
+                relatedMatches={duplicateResult?.matches ?? []}
+                clusterId={duplicateResult?.clusterId}
+                currentId={complaint.id}
+              />
             </Card>
           </div>
         </div>

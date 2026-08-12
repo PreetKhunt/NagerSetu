@@ -11,6 +11,7 @@ import Pagination from "../../components/officer/Pagination";
 import useGrievances from "../../hooks/useGrievances";
 import useDocumentTitle from "../../hooks/useDocumentTitle";
 import { filterComplaints, paginate } from "../../utils/grievanceUtils";
+import { computeProblemClusters } from "../../services/DuplicateDetectionService";
 import { OFFICER_PAGE_SIZE, PATHS } from "../../utils/constants";
 
 const INITIAL = {
@@ -54,6 +55,18 @@ export default function OfficerComplaints() {
     () => filterComplaints(complaints, filters),
     [complaints, filters],
   );
+
+  const clusterMapping = useMemo(() => {
+    if (!complaints?.length) return new Map();
+    const clusters = computeProblemClusters(complaints);
+    const mapping = new Map();
+    clusters.forEach(c => {
+      c.members.forEach(m => {
+        mapping.set(m.id, { clusterId: c.clusterId, count: c.count });
+      });
+    });
+    return mapping;
+  }, [complaints]);
 
   const view = paginate(results, page, OFFICER_PAGE_SIZE);
 
@@ -110,7 +123,7 @@ export default function OfficerComplaints() {
         </Card>
       ) : (
         <Card padding="none">
-          <OfficerComplaintTable complaints={view.items} />
+          <OfficerComplaintTable complaints={view.items} clusterMapping={clusterMapping} />
           <div className="queue-foot">
             <Pagination
               page={view.page}
